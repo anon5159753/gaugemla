@@ -284,6 +284,22 @@ included, but the fits and t = 0 checkpoints can be initialised quickly (`colab/
 | `tl1b_gc` | TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T | meta-llama/Llama-2-7b-hf (float32) |
 | `sm360m_gc` | HuggingFaceTB/SmolLM-360M | HuggingFaceTB/SmolLM2-1.7B (float32) |
 
+## Our method in the code
+
+GaugeMLA's own code, apart from the baselines':
+
+- **Initialisation.** `src/dt_mla_ours.py` solves each layer's latent and read-out under the KL objective
+  (`build_layer`, `build_weights`). `src/dt_mla_unrope.py` builds on it with the rotary rows that do not fit
+  un-roped, and `src/dt_mla_unrope_width.py` gives their widths. `src/dt_mla_unrope_arms.py` (`build`) and
+  `src/dt_mla_w64_ours_unrope_cost.py` make it the arm `mla_w64_ours_unrope_cost`.
+- **The KL objective's two factors** are fitted in the initialisation script,
+  `experiments/grad_clip/p410m_gc/p410m_gc_init.py`: `fit_fisher` fits F<sub>i</sub>, with the 1% token exclusion,
+  and `fit_sigma` fits Σ. `compute_mla_width` gives the width table.
+- **Training.** `experiments/grad_clip/p410m_gc/p410m_gc_run.py` distils every arm the same way (`train_branch`,
+  `kd_loss`, gradient clipped at 1.0); `load_ckpt` loads a saved model.
+
+[`src/README.md`](src/README.md) lists every module the initialisation imports.
+
 ## Code
 
 - `src/`: the method library (conversions, fits, architectures, and the registry `dt_grid_models.py`).
