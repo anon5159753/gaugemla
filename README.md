@@ -287,6 +287,7 @@ included, but the fits and t = 0 checkpoints can be initialised quickly (`colab/
 ## Code
 
 - `src/`: the method library (conversions, fits, architectures, and the registry `dt_grid_models.py`).
+  [`src/README.md`](src/README.md) lists the modules GaugeMLA's initialisation needs; training needs none of them.
 - `experiments/<experiment>/<tag>/<tag>_init.py`, `<tag>_run.py`: one pair per model and experiment, all in the
   same form. [`experiments/README.md`](experiments/README.md) says what each arm name means. `colab/launch.py` runs any of them: `launch.run("<tag>", "init")` on a High-RAM CPU runtime, then
   `launch.run("<tag>", "run", BRANCH=..., TEST_TOKENS=...)` on a GPU. The `_si` and `_seeds` kits also take
