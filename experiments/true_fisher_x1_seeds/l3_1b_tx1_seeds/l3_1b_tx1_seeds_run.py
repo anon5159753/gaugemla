@@ -2455,7 +2455,8 @@ MANIFEST = {"stamp": STAMP, "registry_sha": REGISTRY_SHA, "model": MODEL, "model
 INFO = {"kl_teacher_vs_original": REF_LINES["kl_teacher_vs_original"],
         "gpu": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu",
         "torch": torch.__version__, "transformers": transformers.__version__}
-_absent = sorted(k for k, v in MANIFEST["init_fingerprints"].items() if v == "MISSING")
+_sel = {b for b in os.environ.get("BRANCH", "").split("+") if b}
+_absent = sorted(k for k, v in MANIFEST["init_fingerprints"].items() if v == "MISSING" and (not _sel or k in _sel))
 if _absent:
     raise RuntimeError(f"registry cells with NO init under {CKPT_ROOT}: {', '.join(_absent)}. Build them with "
                        f"the init notebook first, then re-run from the config cell. Nothing was written for "
@@ -2464,6 +2465,11 @@ _mp = os.path.join(OUT_DIR, "_manifest.json")
 if os.path.exists(_mp):
     _old = json.load(open(_mp, encoding="utf-8"))
     _old_info = _old.pop("info", {})
+    _fo = dict(_old.get("init_fingerprints", {}))
+    _fn = MANIFEST["init_fingerprints"]
+    if set(_fo) == set(_fn) and all(_fo[k] == _fn[k] or "MISSING" in (_fo[k], _fn[k]) for k in _fn):
+        _old["init_fingerprints"] = MANIFEST["init_fingerprints"] = {
+            k: (_fn[k] if _fo[k] == "MISSING" else _fo[k]) for k in _fn}
     _diff = sorted(k for k in set(_old) | set(MANIFEST) if _old.get(k) != MANIFEST.get(k))
     if _diff:
         raise RuntimeError(
@@ -2478,6 +2484,11 @@ if os.path.exists(_mp):
                            f"({_old_info.get('gpu')}, torch {_old_info.get('torch')}) -> now ({INFO['gpu']}, "
                            f"torch {INFO['torch']}). The same teacher on the same documents should not move.")
     print(f"manifest   matches {STAMP}'s first session ({_mp})")
+    if MANIFEST["init_fingerprints"] != _fo:
+        print(f"manifest   init fingerprints filled in: "
+              f"{sorted(k for k in _fo if _fo[k] != MANIFEST['init_fingerprints'][k])}")
+        with open(_mp, "w", encoding="utf-8") as _f:
+            json.dump(dict(MANIFEST, info=_old_info), _f, indent=1)
 else:
     with open(_mp, "w", encoding="utf-8") as _f:
         json.dump(dict(MANIFEST, info=INFO), _f, indent=1)
