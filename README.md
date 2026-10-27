@@ -274,6 +274,16 @@ included, but the fits and t = 0 checkpoints can be initialised quickly (`colab/
 
 `names.tsv` files map shortened file names to the original run names.
 
+The task battery logged in the run rows has 13 tasks. Ten are the paper's: LAMBADA, ARC-Easy, ARC-Challenge, PIQA,
+HellaSwag, OpenBookQA, WinoGrande, BoolQ, SIQA and MMLU. Three are synthetic probes that are logged but not reported
+in the paper:
+
+- `induction`: a random 48-token sequence followed by its first 4 tokens again; the model must continue it with the
+  next 8 tokens by copying.
+- `kv_synth_N50`: fifty lines of the form "The code for ⟨word⟩ is ⟨number⟩.", then one of the words again; the model
+  must recall its number.
+- `arith_1d`: eight worked examples of one-digit addition, then a new pair of digits to add.
+
 | tag | model | teacher |
 |---|---|---|
 | `olmo1b_gc` | allenai/OLMo-1B-hf | allenai/OLMo-7B-hf (float32) |
