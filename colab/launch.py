@@ -141,7 +141,7 @@ def kl_table(tag, test_tokens=0):
     arms = {r[0]["arm"] for r in mine.values()}
     if arms:
         ref = {b: r for b, r in ref.items() if r[0]["arm"] in arms}
-    _table(f"the paper's run, for comparison (results/{tag}" + ("; the methods this run trained)" if arms else ")"),
-           ref, cache)
+    _table(f"FROM THE PAPER, not run in this session: the logged run in results/{tag}"
+           + (", the methods this run trained" if arms else ""), ref, cache)
     print("t = 0 is the draw each branch trains from; the paper's GaugeMLA t = 0 entries average five draws "
           "(results/tfx1_seeds).")

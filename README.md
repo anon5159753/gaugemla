@@ -235,8 +235,10 @@ We provide notebooks on Colab for easy access to GPU resources. They have been t
 Upload a notebook from `colab/` to Colab (File → Upload notebook), set its runtime, and run all cells. Run the
 initialisation first.
 
-`colab/pythia410m_gaugemla.ipynb` runs GaugeMLA, our method, exclusively. The other three notebooks run the full
-experiments: GaugeMLA beside the methods it is compared with.
+**To run GaugeMLA, use `colab/pythia410m_gaugemla.ipynb` only.** It builds GaugeMLA's three t = 0 checkpoints and
+trains them, and nothing else. The other three notebooks are for the complete experiments, GaugeMLA beside every
+method it is compared with: they build every method's checkpoints (12 for the 50M grid, more for the 5M grid,
+against GaugeMLA's 3), so they take much longer to initialise.
 
 | notebook | runtime | what it does |
 |---|---|---|
