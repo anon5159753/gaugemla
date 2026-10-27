@@ -1749,7 +1749,7 @@ if _gauge_missing and DRY_RUN:
     print(f"gauge3B needs arm3B gauges at G = {_gauge_missing} for {dt_feasibility_train.MODEL}: the real "
           f"build records them first (gam_record.py, closed-form). Not on a dry run.")
 elif _gauge_missing:
-    subprocess.run([sys.executable, os.path.join(REPO_DIR, "kv-tying", "src",
+    subprocess.run([sys.executable, os.path.join(REPO_DIR, "src",
                                                  "gam_record.py"),
                     "--model", dt_feasibility_train.MODEL, "--arms", "arm3B", "--cases", "B",
                     "--groups", ",".join(str(G) for G in _gauge_missing), "--outdir", dt_arms.GAUGE_DIR],
