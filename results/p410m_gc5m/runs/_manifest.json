@@ -1,0 +1,240 @@
+{
+ "stamp": "grid-p410m_gc5m-pythia-2.8b-float32-5M-lr2e-05-s42",
+ "registry_sha": "9344903699e5bb24c61d74e6fca2ef92cf38f7ac88f32bb8de02b5c98ba231e8",
+ "model": "EleutherAI/pythia-410m",
+ "model_revision": "9879c9b5f8bea9051dcb0e68dff21493d67e9d4f",
+ "teacher": "EleutherAI/pythia-2.8b",
+ "teacher_revision": "2a259cdd96a4beb1cdf467512e3904197345f6a9",
+ "teacher_dtype": "float32",
+ "recipe": {
+  "lr_peak": 2e-05,
+  "warmup_frac": 0.1,
+  "lr_min_frac": 0.1,
+  "batch": 16,
+  "seq_len": 512,
+  "max_tokens": 5000000,
+  "seed": 42
+ },
+ "eval_at_tokens": [
+  0,
+  12500,
+  17500,
+  25000,
+  35000,
+  50000,
+  70000,
+  100000,
+  137500,
+  175000,
+  250000,
+  350000,
+  499712,
+  500000,
+  750000,
+  1000000,
+  1500000,
+  2000000,
+  2250000,
+  2750000,
+  3500000,
+  4250000,
+  5000000
+ ],
+ "battery_at_tokens": [
+  0,
+  5000000
+ ],
+ "run_cells": [
+  [
+   "decoupled_optwide_fisher_sigma_dkr64",
+   1
+  ],
+  [
+   "decoupled_optwide_fisher_sigma_dkr64",
+   2
+  ],
+  [
+   "decoupled_optwide_fisher_sigma_dkr64",
+   4
+  ],
+  [
+   "gauge3B",
+   1
+  ],
+  [
+   "gauge3B",
+   2
+  ],
+  [
+   "gauge3B",
+   4
+  ],
+  [
+   "mha",
+   0
+  ],
+  [
+   "mla_ours_unrope_cost",
+   1
+  ],
+  [
+   "mla_ours_unrope_cost",
+   2
+  ],
+  [
+   "mla_ours_unrope_cost",
+   4
+  ],
+  [
+   "mla_w64_ours_unrope_cost",
+   1
+  ],
+  [
+   "mla_w64_ours_unrope_cost",
+   2
+  ],
+  [
+   "mla_w64_ours_unrope_cost",
+   4
+  ],
+  [
+   "optimal",
+   1
+  ],
+  [
+   "optimal",
+   2
+  ],
+  [
+   "optimal",
+   4
+  ],
+  [
+   "optwide",
+   2
+  ],
+  [
+   "optwide",
+   4
+  ],
+  [
+   "pool",
+   1
+  ],
+  [
+   "pool",
+   2
+  ],
+  [
+   "pool",
+   4
+  ],
+  [
+   "procrustes_simk",
+   1
+  ],
+  [
+   "procrustes_simk",
+   2
+  ],
+  [
+   "procrustes_simk",
+   4
+  ]
+ ],
+ "init_fingerprints": {
+  "decoupled_optwide_fisher_sigma_dkr64_G1": "e3e8542a4bdcf2a1",
+  "decoupled_optwide_fisher_sigma_dkr64_G2": "7bab32a1d86ca78d",
+  "decoupled_optwide_fisher_sigma_dkr64_G4": "4467c980a8f72360",
+  "gauge3B_G1": "d57dd1a4c91efbe2",
+  "gauge3B_G2": "8d00fc29a0b3aff2",
+  "gauge3B_G4": "06ac1eeedf2f4e34",
+  "mla_ours_unrope_cost_G1": "98ac7b0907caf9b5",
+  "mla_ours_unrope_cost_G2": "5b5199463812502d",
+  "mla_ours_unrope_cost_G4": "247cc412376098c4",
+  "mla_w64_ours_unrope_cost_G1": "df3cfabf00b08bee",
+  "mla_w64_ours_unrope_cost_G2": "332993645840626e",
+  "mla_w64_ours_unrope_cost_G4": "46d325ccce30a34a",
+  "optimal_G1": "9dd92750426c7fd1",
+  "optimal_G2": "7294ee663679b4b3",
+  "optimal_G4": "b54f245d25a6a256",
+  "optwide_G2": "62303ff1561bb20f",
+  "optwide_G4": "63b857d166004870",
+  "pool_G1": "bd9ea72a56ab2512",
+  "pool_G2": "a24285126e10f65c",
+  "pool_G4": "4bbfea42afc99afe",
+  "procrustes_simk_G1": "f56f0895fc45ea51",
+  "procrustes_simk_G2": "f04fd5cd0c9a2bea",
+  "procrustes_simk_G4": "060829a12a269440"
+ },
+ "train_stream": {
+  "corpus": "pile",
+  "src": "monology/pile-uncopyrighted",
+  "shuffle_buf": 10000,
+  "datasets": "5.0.1",
+  "first_batch_sha": "f42dd736f5d4979d9525449eb7e172a4eaf51a9808d871847b5e6fe0d97449f1"
+ },
+ "eval_docs_sha": "239226f87c30f945cddb60ac7dc0d6d2b63ff44dde1d4a3c36c5db12c75045cd",
+ "battery": {
+  "lambada": {
+   "n": 500,
+   "items_sha": "baad348465a48f9180629f8a070155de09f558945d402af5ad889c7a15fb92a8"
+  },
+  "piqa": {
+   "n": 500,
+   "items_sha": "3e97503af565fd56f2b54c95278d4485e6640f11cb53bd6d5dd5c64c7430ad80"
+  },
+  "arc_easy": {
+   "n": 500,
+   "items_sha": "c1eef4d437b46bfe36cbe0b42e1b3c8874cab5a59d46a644d84415e13367e5ad"
+  },
+  "boolq": {
+   "n": 500,
+   "items_sha": "769c813bfd315784e433d7559a6f79a3325dbfb007376ade64ca5ff61dc22833"
+  },
+  "siqa": {
+   "n": 500,
+   "items_sha": "15298176d4b0e7a970bebf572f03137a29d69bc01fab5f927e22cb00a38964b3"
+  },
+  "openbookqa": {
+   "n": 500,
+   "items_sha": "bf633e488385784dcc89e2575e7fc5e1b56dd1a57f9e032af28590960440f892"
+  },
+  "hellaswag": {
+   "n": 500,
+   "items_sha": "0bc79b890160865ae8ec9dda8513478f80eaa5047548d0d0aca1e683d8c5a205"
+  },
+  "induction": {
+   "n": 500,
+   "items_sha": "1c5ba96862f391eb90224035f5d1098f6dadf5221a387adfb51eabaaaffcdb51"
+  },
+  "kv_synth_N50": {
+   "n": 500,
+   "items_sha": "9a4287fe27039b6ffcf770c50c5a90df4be3df04ae77f3f2ea1b96a18699c6ee"
+  },
+  "arith_1d": {
+   "n": 500,
+   "items_sha": "463c930df3147369c4d0f5bf7aa92572b5f365e71f4ae9fe6de56fa6cee2df4b"
+  },
+  "arc_challenge": {
+   "n": 500,
+   "items_sha": "ec7f62528891d89a04e19834b444a6f29be2f1a465e76cb8ac3a58b69c178bb1"
+  },
+  "winogrande": {
+   "n": 500,
+   "items_sha": "26a73258cc6591a2ded74e9e31c866a3c6e3ed06bcaa819ba748a07e03bd489e"
+  },
+  "mmlu": {
+   "n": 500,
+   "items_sha": "424427908d82af382de93df169229d96346e974256dbe424e2c6933714369a03"
+  }
+ },
+ "guard_rule": "none (GC5M, the authors 2026-10-26): every cell at 5M, peak 2e-5; no guard is decided from them",
+ "guard_sha": null,
+ "info": {
+  "kl_teacher_vs_original": 0.33759518730221316,
+  "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "torch": "2.11.0+cu128",
+  "transformers": "5.15.0"
+ }
+}

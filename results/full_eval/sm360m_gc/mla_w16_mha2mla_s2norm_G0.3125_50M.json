@@ -1,0 +1,294 @@
+{
+ "schema": "full_eval-2026-10-25.1",
+ "tag": "sm360m_gc",
+ "model_id": "mla_w16_mha2mla_s2norm_G0.3125_50M",
+ "kind": "50M",
+ "arm": "mla_w16_mha2mla_s2norm",
+ "G": 0.3125,
+ "B": 40,
+ "branch": "mla_w16_mha2mla_s2norm_G0.3125_s42",
+ "run_id": "grid-sm360m_gc-SmolLM2-1.7B-float32-50M-lr2e-05-s42-1792814274",
+ "path": "MyDrive/gaugemla/grad_clip/sm360m_gc/runs/grid-sm360m_gc-SmolLM2-1.7B-float32-50M-lr2e-05-s42/models/kd_grid-sm360m_gc-SmolLM2-1.7B-float32-50M-lr2e-05-s42_mla_w16_mha2mla_s2norm_G0.3125_s42",
+ "fingerprint": "87b8e334682fa9f9",
+ "state_fingerprint": "f8c5baa79e01c4cf",
+ "init_fingerprint": "4a0d0e9c0ce1c0b6",
+ "model": "HuggingFaceTB/SmolLM-360M",
+ "model_revision": "59f7ef243ee09a72cbc14cb054393a3e3b771d41",
+ "stamp": "grid-sm360m_gc-SmolLM2-1.7B-float32-50M-lr2e-05-s42",
+ "registry_sha": "3e93c8aa484230f6e3f237d0edf4816cc36e6d76798cee8c14674d7c0499fadb",
+ "eval_script_sha256": "9f70a9c75cf59e257218f2675f1742255a2c277b65aceea80220e9e755b21aa3",
+ "pbs_jobid": "198943.node",
+ "evaluated_at": "2026-10-25T09:05:39Z",
+ "device": "NVIDIA L40",
+ "tf32_matmul": true,
+ "versions": {
+  "torch": "2.11.0+cu128",
+  "transformers": "5.15.0"
+ },
+ "scorer": {
+  "max_batch": 16,
+  "max_batch_tokens": 1536,
+  "max_len": 2048
+ },
+ "tasks": {
+  "lambada": {
+   "n": 5153,
+   "acc": 0.008538715311469047,
+   "acc_norm": 0.008538715311469047,
+   "margin": -10.310059761644775,
+   "ppl": 30033.23142189044,
+   "task": "lambada",
+   "primary": "acc",
+   "primary_value": 0.008538715311469047,
+   "stderr": 0.0012818766004755696,
+   "chance": 0.0,
+   "items_sha": "baad348465a48f9180629f8a070155de09f558945d402af5ad889c7a15fb92a8",
+   "secs": 9.9,
+   "sub500": {
+    "acc": 0.018,
+    "acc_norm": 0.018,
+    "ppl": 28090.63765730478
+   },
+   "sub500_vs_battery": 0.0
+  },
+  "arc_easy": {
+   "n": 2376,
+   "acc": 0.380050505050505,
+   "acc_norm": 0.3434343434343434,
+   "margin": -2.396151375489604,
+   "task": "arc_easy",
+   "primary": "acc",
+   "primary_value": 0.380050505050505,
+   "stderr": 0.009960175831493001,
+   "chance": 0.25,
+   "items_sha": "c1eef4d437b46bfe36cbe0b42e1b3c8874cab5a59d46a644d84415e13367e5ad",
+   "secs": 12.8,
+   "sub500": {
+    "acc": 0.39,
+    "acc_norm": 0.33
+   },
+   "sub500_vs_battery": 0.0
+  },
+  "piqa": {
+   "n": 1838,
+   "acc": 0.5729053318824809,
+   "acc_norm": 0.5631120783460283,
+   "margin": 1.0759085477760488,
+   "task": "piqa",
+   "primary": "acc",
+   "primary_value": 0.5729053318824809,
+   "stderr": 0.01154114583275346,
+   "chance": 0.5,
+   "items_sha": "3e97503af565fd56f2b54c95278d4485e6640f11cb53bd6d5dd5c64c7430ad80",
+   "secs": 5.1,
+   "sub500": {
+    "acc": 0.56,
+    "acc_norm": 0.582
+   },
+   "sub500_vs_battery": 0.0
+  },
+  "hellaswag": {
+   "n": 10042,
+   "acc": 0.27375024895439154,
+   "acc_norm": 0.2804222266480781,
+   "margin": -29.462315166692196,
+   "task": "hellaswag",
+   "primary": "acc_norm",
+   "primary_value": 0.2804222266480781,
+   "stderr": 0.004482874732237671,
+   "chance": 0.25,
+   "items_sha": "0bc79b890160865ae8ec9dda8513478f80eaa5047548d0d0aca1e683d8c5a205",
+   "secs": 77.6,
+   "sub500": {
+    "acc": 0.29,
+    "acc_norm": 0.286
+   },
+   "sub500_vs_battery": 0.0
+  },
+  "openbookqa": {
+   "n": 500,
+   "acc": 0.146,
+   "acc_norm": 0.268,
+   "margin": -6.958792860507965,
+   "task": "openbookqa",
+   "primary": "acc_norm",
+   "primary_value": 0.268,
+   "stderr": 0.019827714859587477,
+   "chance": 0.25,
+   "items_sha": "bf633e488385784dcc89e2575e7fc5e1b56dd1a57f9e032af28590960440f892",
+   "secs": 2.6,
+   "sub500": {
+    "acc": 0.146,
+    "acc_norm": 0.268
+   },
+   "sub500_vs_battery": 0.0
+  },
+  "winogrande": {
+   "n": 1267,
+   "acc": 0.49329123914759276,
+   "acc_norm": 0.49329123914759276,
+   "margin": -0.003657985693277481,
+   "task": "winogrande",
+   "primary": "acc",
+   "primary_value": 0.49329123914759276,
+   "stderr": 0.014051220692330247,
+   "chance": 0.5,
+   "items_sha": "26a73258cc6591a2ded74e9e31c866a3c6e3ed06bcaa819ba748a07e03bd489e",
+   "secs": 3.3,
+   "sub500": {
+    "acc": 0.492,
+    "acc_norm": 0.492
+   },
+   "sub500_vs_battery": 0.0
+  },
+  "arc_challenge": {
+   "n": 1172,
+   "acc": 0.18430034129692832,
+   "acc_norm": 0.21843003412969283,
+   "margin": -6.02856852434601,
+   "task": "arc_challenge",
+   "primary": "acc",
+   "primary_value": 0.18430034129692832,
+   "stderr": 0.011330517933037442,
+   "chance": 0.25,
+   "items_sha": "ec7f62528891d89a04e19834b444a6f29be2f1a465e76cb8ac3a58b69c178bb1",
+   "secs": 6.6,
+   "sub500": {
+    "acc": 0.184,
+    "acc_norm": 0.21
+   },
+   "sub500_vs_battery": 0.0
+  },
+  "boolq": {
+   "n": 3270,
+   "acc": 0.4437308868501529,
+   "acc_norm": 0.6214067278287462,
+   "margin": -0.10243281399438141,
+   "task": "boolq",
+   "primary": "acc",
+   "primary_value": 0.4437308868501529,
+   "stderr": 0.008689501105367349,
+   "chance": 0.5,
+   "items_sha": "769c813bfd315784e433d7559a6f79a3325dbfb007376ade64ca5ff61dc22833",
+   "secs": 24.1,
+   "sub500": {
+    "acc": 0.472,
+    "acc_norm": 0.624
+   },
+   "sub500_vs_battery": -0.0020000000000000018
+  },
+  "siqa": {
+   "n": 1954,
+   "acc": 0.34339815762538384,
+   "acc_norm": 0.3930399181166837,
+   "margin": -4.339111896961958,
+   "task": "siqa",
+   "primary": "acc",
+   "primary_value": 0.34339815762538384,
+   "stderr": 0.010744814130732161,
+   "chance": 0.3333333333333333,
+   "items_sha": "15298176d4b0e7a970bebf572f03137a29d69bc01fab5f927e22cb00a38964b3",
+   "secs": 7.8,
+   "sub500": {
+    "acc": 0.376,
+    "acc_norm": 0.394
+   },
+   "sub500_vs_battery": 0.0
+  },
+  "mmlu": {
+   "n": 14042,
+   "acc": 0.23394103404073494,
+   "acc_norm": 0.23394103404073494,
+   "margin": -0.9342278470902714,
+   "task": "mmlu",
+   "primary": "acc",
+   "primary_value": 0.23394103404073494,
+   "stderr": 0.0035726073130851487,
+   "chance": 0.25,
+   "items_sha": "424427908d82af382de93df169229d96346e974256dbe424e2c6933714369a03",
+   "secs": 177.0,
+   "sub500": {
+    "acc": 0.202,
+    "acc_norm": 0.202
+   },
+   "sub500_vs_battery": 0.0
+  }
+ },
+ "battery500": {
+  "source": "kd_grid-sm360m_gc-SmolLM2-1.7B-float32-50M-lr2e-05-s42_mla_w16_mha2mla_s2norm_G0.3125_s42.jsonl, run grid-sm360m_gc-SmolLM2-1.7B-float32-50M-lr2e-05-s42-1792814274, row at 50,003,968 tokens",
+  "per_task": {
+   "lambada": {
+    "now": 0.018,
+    "logged": 0.018,
+    "n": 500,
+    "d": 0.0,
+    "ppl_now": 28088.527836512993,
+    "ppl_logged": 28088.527836512993,
+    "ppl_rel": 0.0
+   },
+   "arc_easy": {
+    "now": 0.39,
+    "logged": 0.39,
+    "n": 500,
+    "d": 0.0
+   },
+   "piqa": {
+    "now": 0.56,
+    "logged": 0.56,
+    "n": 500,
+    "d": 0.0
+   },
+   "hellaswag": {
+    "now": 0.286,
+    "logged": 0.286,
+    "n": 500,
+    "d": 0.0
+   },
+   "openbookqa": {
+    "now": 0.268,
+    "logged": 0.268,
+    "n": 500,
+    "d": 0.0
+   },
+   "winogrande": {
+    "now": 0.492,
+    "logged": 0.492,
+    "n": 500,
+    "d": 0.0
+   },
+   "arc_challenge": {
+    "now": 0.184,
+    "logged": 0.184,
+    "n": 500,
+    "d": 0.0
+   },
+   "boolq": {
+    "now": 0.474,
+    "logged": 0.474,
+    "n": 500,
+    "d": 0.0
+   },
+   "siqa": {
+    "now": 0.376,
+    "logged": 0.376,
+    "n": 500,
+    "d": 0.0
+   },
+   "mmlu": {
+    "now": 0.202,
+    "logged": 0.202,
+    "n": 500,
+    "d": 0.0
+   }
+  },
+  "max_abs_d": 0.0,
+  "max_ppl_rel": 0.0,
+  "n_exact": 10,
+  "tol": 0.02,
+  "ppl_tol": 0.02,
+  "verdict": "REPRODUCES"
+ },
+ "secs": 375.8,
+ "items_file": "mla_w16_mha2mla_s2norm_G0.3125_50M.items.json.gz",
+ "items_sha256": "029e39a92db9efba1f418fdf9316107655d88922aefe7b288d08af3092f43491"
+}

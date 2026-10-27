@@ -1,0 +1,8 @@
+{
+ "arch": "gqa",
+ "base_model": "EleutherAI/pythia-410m",
+ "G": 2,
+ "arm": "pool",
+ "fingerprint": "a24285126e10f65c",
+ "B": 256
+}

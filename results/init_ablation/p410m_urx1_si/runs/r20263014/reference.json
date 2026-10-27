@@ -1,0 +1,11 @@
+{
+ "teacher": "EleutherAI/pythia-2.8b",
+ "teacher_revision": "2a259cdd96a4beb1cdf467512e3904197345f6a9",
+ "teacher_dtype": "float32",
+ "original": "EleutherAI/pythia-410m",
+ "original_revision": "9879c9b5f8bea9051dcb0e68dff21493d67e9d4f",
+ "kl_teacher_vs_original": 0.33759518730221316,
+ "kl_original_self": 0.0,
+ "ce_original": 2.286969725275412,
+ "ce_teacher": 1.9702005081344396
+}

@@ -1,0 +1,11 @@
+{
+ "teacher": "allenai/OLMo-7B-hf",
+ "teacher_revision": "11fb3186a2e4f681edea621fa8b4345147a9db6a",
+ "teacher_dtype": "float32",
+ "original": "allenai/OLMo-1B-hf",
+ "original_revision": "aee7752d9c08ee4775e9b0091426d8410e8f6a89",
+ "kl_teacher_vs_original": 0.3090940942056477,
+ "kl_original_self": 0.0,
+ "ce_original": 2.267918542958796,
+ "ce_teacher": 2.0106666227802634
+}

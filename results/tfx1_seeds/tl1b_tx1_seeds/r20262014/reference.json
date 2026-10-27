@@ -1,0 +1,11 @@
+{
+ "teacher": "meta-llama/Llama-2-7b-hf",
+ "teacher_revision": "01c7f73d771dfac7d292323805ebc428287df4f9",
+ "teacher_dtype": "float32",
+ "original": "TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T",
+ "original_revision": "59f6f375b26bde864a6ca194a9a3044570490064",
+ "kl_teacher_vs_original": 0.32203128677792847,
+ "kl_original_self": 0.0,
+ "ce_original": 1.9225667668506503,
+ "ce_teacher": 1.706367946229875
+}

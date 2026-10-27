@@ -1,0 +1,11 @@
+{
+ "teacher": "stabilityai/stablelm-2-12b",
+ "teacher_revision": "74dd3f536b71d18aa122a11af0d1b83105cb2d38",
+ "teacher_dtype": "float32",
+ "original": "stabilityai/stablelm-2-1_6b",
+ "original_revision": "f499ead74c53749bd93cebc6ce8bc0d7bdf1eaef",
+ "kl_teacher_vs_original": 0.3406893399078399,
+ "kl_original_self": 0.0,
+ "ce_original": 2.132476283237338,
+ "ce_teacher": 1.8274190295487642
+}

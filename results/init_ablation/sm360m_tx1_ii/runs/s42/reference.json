@@ -1,0 +1,11 @@
+{
+ "teacher": "HuggingFaceTB/SmolLM2-1.7B",
+ "teacher_revision": "effd688a12921b4cc83e3312b6feb579f70f9c71",
+ "teacher_dtype": "float32",
+ "original": "HuggingFaceTB/SmolLM-360M",
+ "original_revision": "59f7ef243ee09a72cbc14cb054393a3e3b771d41",
+ "kl_teacher_vs_original": 0.47217990434728563,
+ "kl_original_self": 0.0,
+ "ce_original": 2.434048691764474,
+ "ce_teacher": 2.029875434935093
+}

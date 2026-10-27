@@ -1,0 +1,8 @@
+{
+ "arch": "gqa",
+ "base_model": "EleutherAI/pythia-410m",
+ "G": 1,
+ "arm": "procrustes",
+ "fingerprint": "f56f0895fc45ea51",
+ "B": 128
+}

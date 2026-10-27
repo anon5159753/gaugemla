@@ -1,0 +1,8 @@
+{
+ "arch": "optimal",
+ "base_model": "EleutherAI/pythia-410m",
+ "G": 1,
+ "arm": "optwide",
+ "fingerprint": "9dd92750426c7fd1",
+ "B": 128
+}

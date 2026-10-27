@@ -1,0 +1,13 @@
+{
+ "arch": "decoupled",
+ "base_model": "EleutherAI/pythia-410m",
+ "G": 2,
+ "arm": "decoupled_optwide_fisher_sigma_dkr64",
+ "fingerprint": "7bab32a1d86ca78d",
+ "B": 256,
+ "c_KV": 192,
+ "d_k_R": 64,
+ "r": 16,
+ "w": 1.0,
+ "sigma_sha256": "7d3e83614211b223"
+}

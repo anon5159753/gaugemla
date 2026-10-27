@@ -1,0 +1,11 @@
+{
+ "teacher": "Qwen/Qwen1.5-4B",
+ "teacher_revision": "a66363a0c24e2155c561e4b53c658b1d3965474e",
+ "teacher_dtype": "float32",
+ "original": "Qwen/Qwen1.5-0.5B",
+ "original_revision": "8f445e3628f3500ee69f24e1303c9f10f5342a39",
+ "kl_teacher_vs_original": 0.49914460303261876,
+ "kl_original_self": 0.0,
+ "ce_original": 2.541380539536476,
+ "ce_teacher": 2.1443878849968314
+}

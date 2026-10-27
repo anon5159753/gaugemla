@@ -1,0 +1,7 @@
+transformers==5.15.0
+huggingface_hub
+safetensors
+pyarrow
+numpy
+scipy
+matplotlib

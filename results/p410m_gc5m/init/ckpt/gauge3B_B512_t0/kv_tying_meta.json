@@ -1,0 +1,8 @@
+{
+ "arch": "gqa",
+ "base_model": "EleutherAI/pythia-410m",
+ "G": 4,
+ "arm": "gauge3B",
+ "fingerprint": "06ac1eeedf2f4e34",
+ "B": 512
+}

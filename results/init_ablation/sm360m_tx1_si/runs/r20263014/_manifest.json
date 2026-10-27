@@ -1,0 +1,128 @@
+{
+ "stamp": "grid-sm360m_tx1_si-SmolLM2-1.7B-float32-50M-lr2e-05-s42-r20263014",
+ "registry_sha": "3a476b7cb2a653a684e87cb3ea699ba9a46dfd7d157141cc761bb215973dd16a",
+ "model": "HuggingFaceTB/SmolLM-360M",
+ "model_revision": "59f7ef243ee09a72cbc14cb054393a3e3b771d41",
+ "teacher": "HuggingFaceTB/SmolLM2-1.7B",
+ "teacher_revision": "effd688a12921b4cc83e3312b6feb579f70f9c71",
+ "teacher_dtype": "float32",
+ "recipe": {
+  "lr_peak": 2e-05,
+  "warmup_frac": 0.1,
+  "lr_min_frac": 0.1,
+  "batch": 16,
+  "seq_len": 512,
+  "max_tokens": 50000000,
+  "seed": 42
+ },
+ "eval_at_tokens": [
+  0,
+  125000,
+  175000,
+  250000,
+  350000,
+  500000,
+  700000,
+  1000000,
+  1375000,
+  1750000,
+  2500000,
+  3500000,
+  4997120,
+  5000000,
+  7500000,
+  10000000,
+  15000000,
+  20000000,
+  22500000,
+  27500000,
+  35000000,
+  42500000,
+  50000000
+ ],
+ "battery_at_tokens": [
+  0,
+  250000,
+  700000,
+  1750000,
+  5000000,
+  7500000,
+  10000000,
+  15000000,
+  22500000,
+  35000000,
+  50000000
+ ],
+ "run_cells": [],
+ "init_fingerprints": {},
+ "train_stream": {
+  "corpus": "pile",
+  "src": "monology/pile-uncopyrighted",
+  "shuffle_buf": 10000,
+  "datasets": "5.0.1",
+  "first_batch_sha": "11fbd3a08b0b01417c0b07b1a183361b80e6b39839edd0121becc5467dc54347"
+ },
+ "eval_docs_sha": "0a1aa1439dba6375da3cef075fb6e8a8239e376c54a60b2282584f4d8c6ec45c",
+ "battery": {
+  "lambada": {
+   "n": 500,
+   "items_sha": "baad348465a48f9180629f8a070155de09f558945d402af5ad889c7a15fb92a8"
+  },
+  "piqa": {
+   "n": 500,
+   "items_sha": "3e97503af565fd56f2b54c95278d4485e6640f11cb53bd6d5dd5c64c7430ad80"
+  },
+  "arc_easy": {
+   "n": 500,
+   "items_sha": "c1eef4d437b46bfe36cbe0b42e1b3c8874cab5a59d46a644d84415e13367e5ad"
+  },
+  "boolq": {
+   "n": 500,
+   "items_sha": "769c813bfd315784e433d7559a6f79a3325dbfb007376ade64ca5ff61dc22833"
+  },
+  "siqa": {
+   "n": 500,
+   "items_sha": "15298176d4b0e7a970bebf572f03137a29d69bc01fab5f927e22cb00a38964b3"
+  },
+  "openbookqa": {
+   "n": 500,
+   "items_sha": "bf633e488385784dcc89e2575e7fc5e1b56dd1a57f9e032af28590960440f892"
+  },
+  "hellaswag": {
+   "n": 500,
+   "items_sha": "0bc79b890160865ae8ec9dda8513478f80eaa5047548d0d0aca1e683d8c5a205"
+  },
+  "induction": {
+   "n": 500,
+   "items_sha": "b0fa4c0ae528eb82f992fff3f8d172865fc770092f8230065a9c833c2876255a"
+  },
+  "kv_synth_N50": {
+   "n": 500,
+   "items_sha": "7020dc027d30d48ad89533f744050d0b4c0a51799ba80d3ea462232692ea7b72"
+  },
+  "arith_1d": {
+   "n": 500,
+   "items_sha": "463c930df3147369c4d0f5bf7aa92572b5f365e71f4ae9fe6de56fa6cee2df4b"
+  },
+  "arc_challenge": {
+   "n": 500,
+   "items_sha": "ec7f62528891d89a04e19834b444a6f29be2f1a465e76cb8ac3a58b69c178bb1"
+  },
+  "winogrande": {
+   "n": 500,
+   "items_sha": "26a73258cc6591a2ded74e9e31c866a3c6e3ed06bcaa819ba748a07e03bd489e"
+  },
+  "mmlu": {
+   "n": 500,
+   "items_sha": "424427908d82af382de93df169229d96346e974256dbe424e2c6933714369a03"
+  }
+ },
+ "guard_rule": "none (MLA50, the authors 2026-10-06): the MLA group at 50M, peak 2e-5, with no 5M grid",
+ "guard_sha": null,
+ "info": {
+  "kl_teacher_vs_original": 0.47217990434728563,
+  "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+  "torch": "2.11.0+cu128",
+  "transformers": "5.15.0"
+ }
+}
