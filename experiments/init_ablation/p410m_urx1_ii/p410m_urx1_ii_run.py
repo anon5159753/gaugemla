@@ -2537,7 +2537,8 @@ if _branch:
 RUN = [(a, g) for a, g in BRANCHES
        if (RUN_ARMS is None or a in RUN_ARMS) and (RUN_GS is None or g in RUN_GS)]
 RUN = [(a, g) for a, g in RUN if (a, g) in RUN_CELLS]
-_missing = sorted(c for c in RUN_CELLS if c[0] != "mha" and c not in set(BRANCHES))
+_missing = sorted(c for c in RUN_CELLS if c[0] != "mha" and c not in set(BRANCHES)
+                  and (RUN_ARMS is None or c[0] in RUN_ARMS) and (RUN_GS is None or c[1] in RUN_GS))
 if _missing:
     raise RuntimeError(f"registry cells with NO init under {CKPT_ROOT}: "
                        f"{', '.join(f'{a}_G{g}' for a, g in _missing)}. Build them with the init "

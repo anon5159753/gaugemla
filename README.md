@@ -50,6 +50,46 @@ fixes them at I and earlier head-tying methods use only orthogonal ones. The fig
 GaugeMLA: it is the basic motivation of GaugeMLA, which fully leverages this gauge freedom, choosing every change of
 basis to limit the damage to attention, for a superior initialisation.
 
+## The KL objective
+
+What initialisation is for is the converted model's output, so GaugeMLA minimises the KL divergence from the original
+model,
+
+$$\mathrm{KL}\left(p_O \,\|\, p_S\right) = \mathbb{E}_{v \sim p_O}\left[\log p_O(v) - \log p_S(v)\right],$$
+
+where $p_O$ is the original model's next-token distribution and $p_S$ the converted model's. With the rotary key
+decoupled, keys and values both read a single content latent $\bar{C}$, and head $i$'s damage is
+
+$$\Delta_i^{K} = W_{K_i}^{\mathrm{nr}} - \Omega_i^{-1} \bar{C}, \qquad \Delta_i^{V} = W_{V_i} - \Gamma_i^{-1} \bar{C},$$
+
+where $W_{K_i}^{\mathrm{nr}}$ is the non-rotary part of the key map. Expanding to second order in $\Delta_i$,
+
+$$\mathrm{KL}\left(p_O \,\|\, p_S\right) \approx \tfrac{1}{2} \sum_i \mathrm{tr}\left(\Delta_i^\top F_i \Delta_i \Sigma\right),$$
+
+where the sum runs over keys and values ($\Delta_i$ is $\Delta_i^{K}$ or $\Delta_i^{V}$). The two factors say which
+directions of the damage matter:
+
+- $\Sigma = \mathbb{E}[x^\top x]$, **the input metric** (one per layer), is the second moment of the attention input
+  (after the layer norm), from one forward pass. Damage along input directions the layer rarely sees costs little;
+  $\Sigma = I$ counts every input direction alike.
+- $F_i = \mathbb{E}[g^\top g]$, **the output metric** (one per head, for keys and for values), is the second moment of
+  the loss gradient $g$ at that head's key or value output, from one forward and one backward pass with the next
+  token at each position drawn from the model's own prediction: the second-order term of the KL is the Fisher
+  information of the original model. Damage along key or value directions the next-token distribution is
+  insensitive to costs little; $F_i = I$ counts every output direction alike.
+
+Both are measured on a calibration set of 64 passages of 512 tokens from The Pile, disjoint from the evaluation
+passages; TransMLA, MHA2MLA and CARE measure their statistics on the same passages. For each passage and layer, the
+1% of tokens with the largest gradient at the key and value projections are left out of $F_i$'s average: a few tokens
+dominate it, chiefly each passage's first token, which becomes an attention sink with an extreme gradient. $\Sigma$
+keeps every token.
+
+GaugeMLA chooses the latent, the gauges and which rotary rows to un-rope by this objective. The ablations in Tables 8
+and 9 set $F_i$, $\Sigma$ or both to the identity, so that every output direction, every input direction, or both
+count alike; with both, the objective is the plain squared error of the weights,
+$\tfrac{1}{2} \sum_i \lVert \Delta_i \rVert_F^2$. The next token drawn for $F_i$ is random, and the five draws behind
+the ± in the tables measure its effect.
+
 ## Results
 
 GaugeMLA almost always initialises the compressed model so that its attention mechanism is better preserved, an
@@ -200,12 +240,15 @@ initialisation first.
 | `colab/pythia410m_init.ipynb` | CPU, High-RAM | the t = 0 checkpoints of the 50M grid in one cell, then of the 5M grid in the next |
 | `colab/pythia410m_train_50M.ipynb` | A100, High-RAM | 50M-token training of one branch (or all 12); saves each final model |
 | `colab/pythia410m_train_5M.ipynb` | A100, High-RAM | 5M-token training of one branch (or all 24, the MHA control included) |
+| `colab/pythia410m_gaugemla.ipynb` | A100, High-RAM | GaugeMLA only, on its own: its t = 0 checkpoints, then 50M-token training of its three branches |
 
 Each notebook mounts Google Drive, clones only the parts of the repository it uses, and starts that experiment's
 script. Everything is written under `MyDrive/gaugemla/`:
 `grad_clip/p410m_gc/` for the 50M grid and `grad_clip_5m/p410m_gc5m/` for the 5M grid, each with `init/`
 (checkpoints), the fits (`fisher/`, `sigma/`, ...) and `runs/<stamp>/` (rows, and `models/` for 50M). The 5M grid
-reads the 50M grid's fits and GaugeMLA checkpoints, as in the paper. Finished checkpoints and branches are skipped,
+reads the 50M grid's fits and GaugeMLA checkpoints, as in the paper. Training reads its t = 0 checkpoints from the
+same Drive folders, so mount the same Google account in every notebook; the original model, the teacher and the text
+are downloaded from the Hugging Face Hub in each session. Finished checkpoints and branches are skipped,
 so a rerun continues where the last session stopped.
 
 Set `TEST_TOKENS = 50000` for a quick test. The experiments in the paper trained on 50M tokens (5M for the 5M grid),

@@ -1616,6 +1616,14 @@ _reg_cells = sorted([c["arm"], c["G"] if c["G"] is not None else -1, c["B"]] for
                     if c["arm"] != "mha" and (c["init"] == "BUILD" or c["init"].startswith("DEDUP:")))
 if sorted([a, -1 if g is None else g, b] for a, g, b in INIT_CELLS) != _reg_cells:
     raise RuntimeError("INIT_CELLS is not the registry's BUILD + DEDUP cells")
+INIT_ONLY = [a for a in os.environ.get("INIT_ARMS", "").split(",") if a]
+if INIT_ONLY:
+    if sorted(set(INIT_ONLY) - set(INIT_ARMS)):
+        raise RuntimeError(f"INIT_ARMS names {sorted(set(INIT_ONLY) - set(INIT_ARMS))}, which this grid does not "
+                           f"build: {INIT_ARMS}")
+    INIT_CELLS = [c for c in INIT_CELLS if c[0] in INIT_ONLY]
+    INIT_ARMS = [a for a in INIT_ARMS if a in INIT_ONLY]
+    print(f"INIT_ARMS: building only {INIT_ARMS} ({len(INIT_CELLS)} cells); the registry's other cells stay unbuilt")
 
 DRY_RUN = {"True": True, "False": False}.get(os.environ.get("DRY_RUN", ""))
 if DRY_RUN is None:
@@ -1782,6 +1790,8 @@ for _c in GRID_CELLS:
     _row = {k: _c[k] for k in ("arm", "label", "B", "G", "init", "why", "train", "train_why", "rot_rule", "rot_w")}
     if _c["arm"] == "mha":
         _row.update(state="CONTROL", path=None)
+    elif (_c["init"] == "BUILD" or _c["init"].startswith("DEDUP:")) and _c["arm"] not in INIT_ARMS:
+        _row.update(state="NOT_BUILT", path=None)
     elif _c["init"] == "BUILD" or _c["init"].startswith("DEDUP:"):
         _d = os.path.join(CKPT_ROOT, f"{_c['arm']}_B{_c['B']}_t0")
         if dt_feasibility_train._checkpoint_valid(_d):
@@ -1821,7 +1831,7 @@ _known = {f"{_c['arm']}_B{_c['B']}_t0" for _c in GRID_CELLS}
 _extra = sorted(n for n in os.listdir(CKPT_ROOT) if n.endswith("_t0") and n not in _known)
 
 print(f"{MODEL_TAG}: {len(_acc)} registry cells")
-for _st in ("ON_DISK", "MISSING", "RECORDED", "CONTROL"):
+for _st in ("ON_DISK", "MISSING", "NOT_BUILT", "RECORDED", "CONTROL"):
     _rs = [r for r in _acc if r["state"] == _st]
     print(f"  {_st:<9} {len(_rs):>3}" + ("" if _st in ("ON_DISK",) else
           "".join(f"\n      {r['arm']:<40} {r['label']:>6} B={r['B']:<5} {r['init']}" for r in _rs)))
@@ -1833,7 +1843,7 @@ if DRY_RUN:
 else:
     _out = {"model_tag": MODEL_TAG, "registry_sha": REGISTRY_SHA, "hf_id": GRID["hf_id"],
             "revision": GRID["revision"], "ckpt_root": CKPT_ROOT, "module_manifest": MODULE_MANIFEST,
-            "cells": _acc, "missing": _missing, "extra_dirs": _extra}
+            "cells": _acc, "missing": _missing, "extra_dirs": _extra, "init_arms": INIT_ARMS}
     _p = os.path.join(GRID_INIT_DIR, "_cells.json")
     with open(_p, "w", encoding="utf-8") as _f:
         json.dump(_out, _f, indent=1)
@@ -1842,4 +1852,4 @@ else:
         raise RuntimeError(f"{len(_missing)} BUILD cells are not on disk after the init cell: {_missing}. "
                            f"Re-run the init cell (it resumes); a cell that keeps failing is a bug to fix, "
                            f"never a cell to drop.")
-    print(f"✔ every BUILD and DEDUP cell is on disk and reloads; next: {MODEL_TAG}_run.ipynb")
+    print(f"✔ every BUILD and DEDUP cell of {INIT_ARMS} is on disk and reloads; next: {MODEL_TAG}_run")
