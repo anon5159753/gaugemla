@@ -1629,7 +1629,8 @@ if dt_checkpoint._FINGERPRINT["mha"](_base) != DSTAR["base_fingerprint"]:
     raise RuntimeError("the base fingerprint moved between two reads of one model")
 import dt_mla_unrope_width as _UW
 UNROPE_COARSE = None
-UNROPE_WORKERS = max(1, (os.cpu_count() or 2) // 2)
+# UNROPE_WORKERS = max(1, (os.cpu_count() or 2) // 2)
+UNROPE_WORKERS = 1
 _mla_by_alloc = {}
 for _alloc in ("energy", "cost"):
     print(f"\n  the un-rope KL-objective width, damped read-out, {_alloc} allocation, coarse "
