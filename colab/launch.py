@@ -130,6 +130,7 @@ def kl_table(tag, test_tokens=0):
     stamps = [s for s in glob.glob(f"{runs}/grid-{tag}-*")
               if (s.endswith(f"-test{test_tokens}") if test_tokens else "-test" not in os.path.basename(s))]
     cache = SOURCE_CACHE.get(tag)
+    mine = {}
     if len(stamps) != 1:
         print(f"this run: {len(stamps)} matching stamp folders under {runs}: {stamps}")
     else:
@@ -137,6 +138,10 @@ def kl_table(tag, test_tokens=0):
         _table(f"this run ({os.path.basename(stamps[0])}): KL to the teacher, mean over the eval documents", mine, cache)
     subprocess.run(["git", "-C", REPO_DIR, "sparse-checkout", "add", f"results/{tag}"], check=True)
     ref = _rows(glob.glob(f"{REPO_DIR}/results/{tag}/runs/**/*.jsonl", recursive=True))
-    _table(f"reported (results/{tag})", ref, cache)
+    arms = {r[0]["arm"] for r in mine.values()}
+    if arms:
+        ref = {b: r for b, r in ref.items() if r[0]["arm"] in arms}
+    _table(f"the paper's run, for comparison (results/{tag}" + ("; the methods this run trained)" if arms else ")"),
+           ref, cache)
     print("t = 0 is the draw each branch trains from; the paper's GaugeMLA t = 0 entries average five draws "
           "(results/tfx1_seeds).")
