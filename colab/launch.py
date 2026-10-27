@@ -61,7 +61,8 @@ def run(tag, stage, **env):
     """Run experiments/<folder>/<tag>/<tag>_<stage>.py in its own process, streaming its output here."""
     folder = f"experiments/{FOLDER[tag]}/{tag}"
     script = f"{REPO_DIR}/{folder}/{tag}_{stage}.py"
-    subprocess.run(["git", "-C", REPO_DIR, "sparse-checkout", "add", folder], check=True)
+    if not os.path.isdir(f"{REPO_DIR}/{folder}"):   # a sparse clone (the notebooks'); a full clone has it already
+        subprocess.run(["git", "-C", REPO_DIR, "sparse-checkout", "add", folder], check=True)
     subprocess.run([sys.executable, "-m", "pip", "install", "-q", *PINS], check=True)
     child = dict(os.environ, PYTHONUNBUFFERED="1", MPLBACKEND="Agg", **{k: str(v) for k, v in env.items()})
     from google.colab import userdata
@@ -136,7 +137,8 @@ def kl_table(tag, test_tokens=0):
     else:
         mine = _rows(glob.glob(f"{stamps[0]}/kd_*.jsonl"))
         _table(f"this run ({os.path.basename(stamps[0])}): KL to the teacher, mean over the eval documents", mine, cache)
-    subprocess.run(["git", "-C", REPO_DIR, "sparse-checkout", "add", f"results/{tag}"], check=True)
+    if not os.path.isdir(f"{REPO_DIR}/results/{tag}"):
+        subprocess.run(["git", "-C", REPO_DIR, "sparse-checkout", "add", f"results/{tag}"], check=True)
     ref = _rows(glob.glob(f"{REPO_DIR}/results/{tag}/runs/**/*.jsonl", recursive=True))
     arms = {r[0]["arm"] for r in mine.values()}
     if arms:
