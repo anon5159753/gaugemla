@@ -235,12 +235,17 @@ We provide notebooks on Colab for easy access to GPU resources. They have been t
 Upload a notebook from `colab/` to Colab (File → Upload notebook), set its runtime, and run all cells. Run the
 initialisation first.
 
+`colab/pythia410m_gaugemla.ipynb` runs GaugeMLA, our method, exclusively. The other three notebooks run the full
+experiments: GaugeMLA beside the methods it is compared with.
+
 | notebook | runtime | what it does |
 |---|---|---|
-| `colab/pythia410m_init.ipynb` | CPU, High-RAM | the t = 0 checkpoints of the 50M grid in one cell, then of the 5M grid in the next |
-| `colab/pythia410m_train_50M.ipynb` | A100, High-RAM | 50M-token training of one branch (or all 12); saves each final model |
-| `colab/pythia410m_train_5M.ipynb` | A100, High-RAM | 5M-token training of one branch (or all 24, the MHA control included) |
-| `colab/pythia410m_gaugemla.ipynb` | A100, High-RAM | GaugeMLA only, on its own: its t = 0 checkpoints, then 50M-token training of its three branches |
+| **GaugeMLA only** | | |
+| `colab/pythia410m_gaugemla.ipynb` | A100, High-RAM | GaugeMLA's t = 0 checkpoints, then 50M-token training of its three branches (25, 12.5, 6.25%) |
+| **The full experiments** | | |
+| `colab/pythia410m_init.ipynb` | CPU, High-RAM | the t = 0 checkpoints of every method: the 50M grid (GaugeMLA, TransMLA, MHA2MLA, CARE) in one cell, then the 5M grid (every construction) in the next |
+| `colab/pythia410m_train_50M.ipynb` | A100, High-RAM | 50M-token training of one branch, or all 12 (four methods at three budgets); saves each final model |
+| `colab/pythia410m_train_5M.ipynb` | A100, High-RAM | 5M-token training of one branch, or all 24 (every construction, the MHA control included) |
 
 Each notebook mounts Google Drive, clones only the parts of the repository it uses, and starts that experiment's
 script. Everything is written under `MyDrive/gaugemla/`:
