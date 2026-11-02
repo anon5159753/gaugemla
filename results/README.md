@@ -6,8 +6,8 @@ GaugeMLA without the KL stand-in: the ablation $A_p^{\mathrm{ramp}}$, the earlie
 | folder | what it is |
 |---|---|
 | `kl_standin_50m/<model>/` | **GaugeMLA, the method of the paper**: arm `mla_w64_ours_unrope_cost_kl` on the multi-head models and `mla_w16_ours_unrope_cost_kl` on the grouped-query ones, trained for 50M tokens at 25, 12.5 and 6.25% of the KV cache. |
-| `<model>_gc/` | The methods it is compared with, trained the same way: TransMLA, MHA2MLA, CARE (multi-head models only), and **$A_p^{\mathrm{ramp}}$, GaugeMLA's un-roping ablation** (arm `mla_w{64,16}_ours_unrope_cost`). |
 | `kl_standin_eval/<model>/` | GaugeMLA's t = 0 initialisations and saved 50M models, and the original model, scored on the full splits of the ten tasks. |
+| `<model>_gc/` | The methods it is compared with, trained the same way: TransMLA, MHA2MLA, CARE (multi-head models only), and **$A_p^{\mathrm{ramp}}$, GaugeMLA's un-roping ablation** (arm `mla_w{64,16}_ours_unrope_cost`). |
 
 ## GaugeMLA and $A_p^{\mathrm{ramp}}$
 
