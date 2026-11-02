@@ -4,17 +4,18 @@ To run GaugeMLA on Pythia-410m (w = 64, as in the Colab notebooks):
 
 - **Training needs nothing from `src/`.** Each run script (`experiments/<experiment>/<tag>/<tag>_run.py`) carries its
   own MLA architecture and loss, and reads the t = 0 checkpoints from Google Drive.
-- **Initialisation imports the 35 modules below**, plus `requirements.txt`, which it installs. The other 25 build the
+- **Initialisation imports the 36 modules below**, plus `requirements.txt`, which it installs. The other 29 build the
   other arms. The initialisation's module check expects every file it pins to be present and unchanged in the clone,
   so keep `src/` whole.
 
-## The 35 modules GaugeMLA's initialisation imports
+## The 36 modules GaugeMLA's initialisation imports
 
 ### GaugeMLA
 
 | module | role |
 |---|---|
-| `dt_mla_w64_ours_unrope_cost` | The arm `mla_w64_ours_unrope_cost`, GaugeMLA at rotary width w = 64: a thin wrapper that names its settings. |
+| `dt_mla_w64_ours_unrope_cost_kl` | The arm `mla_w64_ours_unrope_cost_kl`, GaugeMLA at rotary width w = 64: a thin wrapper that names its settings and applies the KL stand-in. |
+| `dt_mla_kl_standin` | The KL stand-in for the un-roped planes: `measure` gathers its statistics on the Fisher fit's own pass, `standin` gives each head's read-out A* = (F^aa)^-1 F^ab per un-roped plane and the metric F^aa of the un-roped rows, and `install` hands them to the builder. |
 | `dt_mla_unrope_arms` | Builds every un-roped GaugeMLA arm from one recipe. |
 | `dt_mla_unrope` | GaugeMLA with the rotary rows that do not fit in the rotary width un-roped rather than dropped. |
 | `dt_mla_unrope_width` | The rotary width rule when those rows are un-roped. |
@@ -51,14 +52,15 @@ To run GaugeMLA on Pythia-410m (w = 64, as in the Colab notebooks):
 serve the other constructions (grouped-query pooling, Procrustes alignment, the subspace and decoupled arms) and
 the task battery, scoring and logging.
 
-## The other 25 modules
+## The other 29 modules
 
 | modules | what they build |
 |---|---|
+| `dt_mla_w16_ours_unrope_cost_kl` | GaugeMLA at w = 16: the grouped-query models' initialisation imports it in place of the w = 64 arm. |
+| `dt_mla_w64_ours_unrope_cost`, `dt_mla_w16_ours_unrope_cost` | $A_p^{\mathrm{ramp}}$, the un-roping ablation: GaugeMLA with each un-roped plane read out by its mean rotation over the offsets (the earlier GaugeMLA). |
+| `dt_mla_w64_ours_unrope_cost_klsi`, `dt_mla_w16_ours_unrope_cost_klsi` | The ablation Σ = I: GaugeMLA with the input metric set to the identity. |
 | `dt_mla_w64_transmla`, `dt_mla_w64_mha2mla`, `dt_mla_w64_care`, `dt_mla_w16_transmla`, `dt_mla_w16_mha2mla`, `dt_mla_mha2mla`, `dt_mla_care` | The baselines: TransMLA, MHA2MLA and CARE at w = 64 (and the first two at w = 16). |
-| `dt_mla_w64_ours_unrope_cost_fi`, `dt_mla_w64_ours_unrope_cost_si`, `dt_mla_w64_ours_unrope_cost_ii`, `dt_mla_w16_ours_unrope_cost_fi`, `dt_mla_w16_ours_unrope_cost_si`, `dt_mla_w16_ours_unrope_cost_ii` | The ablations: F_i = I, Σ = I, both. |
-| `dt_mla_w16_ours_unrope_cost` | GaugeMLA at w = 16: the grouped-query models' initialisation imports it in place of the w = 64 arm. |
-| `dt_mla_ours_unrope_cost` | GaugeMLA at the KL width (the 5M comparison). |
 | `dt_mla_fit_llama` | Σ, the Fisher and MHA2MLA's statistics on LLaMA-family models. |
 | `gam_record` | Records the gauges of the "GQA + optimal gauge" construction. |
-| `dt_mla_ours_unrope_energy`, `dt_mla_w64_ours_unrope_energy`, `dt_mla_w16_ours_unrope_energy`, `dt_mla_w64_ours_unrope_tmcopy`, `dt_mla_w64_ours_unrope_tmcopy_fi`, `dt_mla_w64_ours_unrope_tmdamped`, `dt_mla_ours_eig`, `dt_mla_w64_ours` | Registered GaugeMLA variants that none of this repository's experiments runs. |
+| `dt_mla_ours_unrope_cost` | $A_p^{\mathrm{ramp}}$ at the KL width: in the 5M kit's registry, but neither built by the notebooks nor reported in the paper. |
+| `dt_mla_w64_ours_unrope_cost_fi`, `dt_mla_w64_ours_unrope_cost_si`, `dt_mla_w64_ours_unrope_cost_ii`, `dt_mla_w16_ours_unrope_cost_fi`, `dt_mla_w16_ours_unrope_cost_si`, `dt_mla_w16_ours_unrope_cost_ii`, `dt_mla_ours_unrope_energy`, `dt_mla_w64_ours_unrope_energy`, `dt_mla_w16_ours_unrope_energy`, `dt_mla_w64_ours_unrope_tmcopy`, `dt_mla_w64_ours_unrope_tmcopy_fi`, `dt_mla_w64_ours_unrope_tmdamped`, `dt_mla_ours_eig`, `dt_mla_w64_ours` | Registered variants of the earlier GaugeMLA that none of this repository's experiments runs. |

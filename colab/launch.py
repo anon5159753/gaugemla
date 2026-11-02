@@ -17,44 +17,63 @@ FOLDER = {
     "tl1b_gc": "grad_clip",
     "sm360m_gc": "grad_clip",
     "p410m_gc5m": "grad_clip_5m",
-    "slm1p6b_urx1_fi": "init_ablation",
-    "p410m_urx1_fi": "init_ablation",
-    "tl1b_tx1_fi": "init_ablation",
-    "sm360m_tx1_fi": "init_ablation",
-    "olmo1b_tx1_fi": "init_ablation",
-    "q0p5b_tx1_fi": "init_ablation",
-    "l3_1b_tx1_fi": "init_ablation",
-    "slm1p6b_urx1_si": "init_ablation",
-    "p410m_urx1_si": "init_ablation",
-    "tl1b_tx1_si": "init_ablation",
-    "sm360m_tx1_si": "init_ablation",
-    "olmo1b_tx1_si": "init_ablation",
-    "q0p5b_tx1_si": "init_ablation",
-    "l3_1b_tx1_si": "init_ablation",
-    "slm1p6b_urx1_ii": "init_ablation",
-    "p410m_urx1_ii": "init_ablation",
-    "tl1b_tx1_ii": "init_ablation",
-    "sm360m_tx1_ii": "init_ablation",
-    "olmo1b_tx1_ii": "init_ablation",
-    "q0p5b_tx1_ii": "init_ablation",
-    "l3_1b_tx1_ii": "init_ablation",
     "slm1p6b_urx1_seeds": "true_fisher_x1_seeds",
     "p410m_urx1_seeds": "true_fisher_x1_seeds",
     "tl1b_tx1_seeds": "true_fisher_x1_seeds",
     "sm360m_tx1_seeds": "true_fisher_x1_seeds",
     "olmo1b_tx1_seeds": "true_fisher_x1_seeds",
     "q0p5b_tx1_seeds": "true_fisher_x1_seeds",
-    "l3_1b_tx1_seeds": "true_fisher_x1_seeds"
+    "l3_1b_tx1_seeds": "true_fisher_x1_seeds",
+    "olmo1b_klgc": "kl_standin_50m",
+    "p410m_klgc": "kl_standin_50m",
+    "slm1p6b_klgc": "kl_standin_50m",
+    "q0p5b_klgc": "kl_standin_50m",
+    "l3_1b_klgc": "kl_standin_50m",
+    "tl1b_klgc": "kl_standin_50m",
+    "sm360m_klgc": "kl_standin_50m",
+    "p410m_kl5m": "kl_standin_5m",
+    "slm1p6b_urx1_kls": "kl_standin_ablation",
+    "p410m_urx1_kls": "kl_standin_ablation",
+    "tl1b_tx1_kls": "kl_standin_ablation",
+    "sm360m_tx1_kls": "kl_standin_ablation",
+    "olmo1b_tx1_kls": "kl_standin_ablation",
+    "q0p5b_tx1_kls": "kl_standin_ablation",
+    "l3_1b_tx1_kls": "kl_standin_ablation",
+    "slm1p6b_urx1_klsi": "kl_standin_ablation",
+    "p410m_urx1_klsi": "kl_standin_ablation",
+    "tl1b_tx1_klsi": "kl_standin_ablation",
+    "sm360m_tx1_klsi": "kl_standin_ablation",
+    "olmo1b_tx1_klsi": "kl_standin_ablation",
+    "q0p5b_tx1_klsi": "kl_standin_ablation",
+    "l3_1b_tx1_klsi": "kl_standin_ablation"
 }
-NAMES = {"mla_w64_ours_unrope_cost": "GaugeMLA", "mla_w64_transmla_sigma": "TransMLA",
-         "mla_w64_mha2mla_s2norm": "MHA2MLA", "mla_w64_care_sigma": "CARE",
-         "mla_ours_unrope_cost": "GaugeMLA, KL width", "decoupled_optwide_fisher_sigma_dkr64": "Decoupled, KL objective",
-         "pool": "GQA (pool)", "gauge3B": "GQA + optimal gauge", "procrustes_simk": "Procrustes alignment",
-         "optimal": "Per-group subspace", "optwide": "Joint key, joint value subspace", "mha": "MHA control"}
-ORDER = ["pool", "gauge3B", "procrustes_simk", "optimal", "optwide", "decoupled_optwide_fisher_sigma_dkr64",
-         "mla_w64_ours_unrope_cost", "mla_ours_unrope_cost", "mla_w64_transmla_sigma", "mla_w64_mha2mla_s2norm",
-         "mla_w64_care_sigma", "mha"]
-SOURCE_CACHE = {"p410m_gc": 2048, "p410m_gc5m": 2048}
+NAMES = {
+    "mla_w64_ours_unrope_cost_kl": "GaugeMLA",
+    "mla_w16_ours_unrope_cost_kl": "GaugeMLA",
+    "mla_w64_ours_unrope_cost": "A_p^ramp (un-roping ablation)",
+    "mla_w16_ours_unrope_cost": "A_p^ramp (un-roping ablation)",
+    "mla_w64_ours_unrope_cost_klsi": "GaugeMLA, Σ = I",
+    "mla_w16_ours_unrope_cost_klsi": "GaugeMLA, Σ = I",
+    "mla_w64_transmla_sigma": "TransMLA",
+    "mla_w16_transmla_sigma": "TransMLA",
+    "mla_w64_mha2mla_s2norm": "MHA2MLA",
+    "mla_w16_mha2mla_s2norm": "MHA2MLA",
+    "mla_w64_care_sigma": "CARE",
+    "decoupled_optwide_fisher_sigma_dkr64": "Decoupled, KL objective",
+    "pool": "GQA (pool)",
+    "gauge3B": "GQA + optimal gauge",
+    "procrustes_simk": "Procrustes alignment",
+    "procrustes": "Procrustes alignment, one KV head",
+    "optimal": "Per-group subspace",
+    "optwide": "Joint key, joint value subspace",
+    "mha": "MHA control"
+}
+ORDER = ["pool", "gauge3B", "procrustes_simk", "procrustes", "optimal", "optwide", "decoupled_optwide_fisher_sigma_dkr64", "mla_w64_ours_unrope_cost_kl", "mla_w64_ours_unrope_cost", "mla_w64_transmla_sigma", "mla_w64_mha2mla_s2norm", "mla_w64_care_sigma", "mha"]
+SOURCE_CACHE = {"p410m_gc": 2048, "p410m_gc5m": 2048, "p410m_klgc": 2048, "p410m_kl5m": 2048}
+RESULTS = {
+    "p410m_gc": "p410m_gc/runs",
+    "p410m_klgc": "kl_standin_50m/p410m"
+}
 
 
 def run(tag, stage, **env):
@@ -137,13 +156,16 @@ def kl_table(tag, test_tokens=0):
     else:
         mine = _rows(glob.glob(f"{stamps[0]}/kd_*.jsonl"))
         _table(f"this run ({os.path.basename(stamps[0])}): KL to the teacher, mean over the eval documents", mine, cache)
-    if not os.path.isdir(f"{REPO_DIR}/results/{tag}"):
-        subprocess.run(["git", "-C", REPO_DIR, "sparse-checkout", "add", f"results/{tag}"], check=True)
-    ref = _rows(glob.glob(f"{REPO_DIR}/results/{tag}/runs/**/*.jsonl", recursive=True))
+    if tag not in RESULTS:
+        print(f"\nresults/ holds the 50M training runs only, so it has no logged run of {tag} to set beside this one.")
+        return
+    if not os.path.isdir(f"{REPO_DIR}/results/{RESULTS[tag]}"):
+        subprocess.run(["git", "-C", REPO_DIR, "sparse-checkout", "add", f"results/{RESULTS[tag]}"], check=True)
+    ref = _rows(glob.glob(f"{REPO_DIR}/results/{RESULTS[tag]}/**/*.jsonl", recursive=True))
     arms = {r[0]["arm"] for r in mine.values()}
     if arms:
         ref = {b: r for b, r in ref.items() if r[0]["arm"] in arms}
-    _table(f"FROM THE PAPER, not run in this session: the logged run in results/{tag}"
+    _table(f"FROM THE PAPER, not run in this session: the logged run in results/{RESULTS[tag]}"
            + (", the methods this run trained" if arms else ""), ref, cache)
-    print("t = 0 is the draw each branch trains from; the paper's GaugeMLA t = 0 entries average five draws "
-          "(results/tfx1_seeds).")
+    print("t = 0 is the draw each branch trains from; the paper's t = 0 entries for GaugeMLA and A_p^ramp average "
+          "five draws.")

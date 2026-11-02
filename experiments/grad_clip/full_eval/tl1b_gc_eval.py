@@ -1,5 +1,5 @@
-# tl1b_gc full evaluation: re-scores the saved models of tl1b_gc's 50M branches on the full task splits.
-# Cluster form (a PBS job; DRIVE_ROOT is the cluster's storage), kept as the code behind results/full_eval/.
+# tl1b_gc full evaluation: scores the t = 0 inits and saved 50M models of tl1b_gc's branches on the full task splits.
+# Cluster form (a PBS job; DRIVE_ROOT is the cluster's storage), kept as code; its scores are not in results/.
 
 import os
 if not os.environ.get("PBS_JOBID"):

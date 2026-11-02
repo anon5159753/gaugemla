@@ -57,7 +57,9 @@ ARM_NAMES =("mha", "pool", "gauge3B", "optimal", "optimal_search",
              "mla_w64_ours_unrope_tmcopy_fi",
              "mla_w64_ours_unrope_cost_fi",
              "mla_w16_ours_unrope_cost_fi", "mla_w64_ours_unrope_cost_si", "mla_w16_ours_unrope_cost_si",
-             "mla_w64_ours_unrope_cost_ii", "mla_w16_ours_unrope_cost_ii")
+             "mla_w64_ours_unrope_cost_ii", "mla_w16_ours_unrope_cost_ii",
+             "mla_w64_ours_unrope_cost_kl", "mla_w16_ours_unrope_cost_kl",
+             "mla_w64_ours_unrope_cost_klsi", "mla_w16_ours_unrope_cost_klsi")
 
 MLA_ARMS = {
     "mla_ours_fisher_sigma": ("dt_mla_ours", "shared", frozenset({"fisher", "sigma"}), ("dkv",),
@@ -110,6 +112,14 @@ MLA_ARMS = {
                                     ("dkv",), "d_h^-1/2"),
     "mla_w64_ours_unrope_cost_ii": ("dt_mla_w64_ours_unrope_cost_ii", "shared", frozenset(), ("dkv",), "d_h^-1/2"),
     "mla_w16_ours_unrope_cost_ii": ("dt_mla_w16_ours_unrope_cost_ii", "shared", frozenset(), ("dkv",), "d_h^-1/2"),
+    "mla_w64_ours_unrope_cost_kl": ("dt_mla_w64_ours_unrope_cost_kl", "shared", frozenset({"fisher", "sigma"}),
+                                    ("dkv",), "d_h^-1/2"),
+    "mla_w16_ours_unrope_cost_kl": ("dt_mla_w16_ours_unrope_cost_kl", "shared", frozenset({"fisher", "sigma"}),
+                                    ("dkv",), "d_h^-1/2"),
+    "mla_w64_ours_unrope_cost_klsi": ("dt_mla_w64_ours_unrope_cost_klsi", "shared", frozenset({"fisher"}),
+                                      ("dkv",), "d_h^-1/2"),
+    "mla_w16_ours_unrope_cost_klsi": ("dt_mla_w16_ours_unrope_cost_klsi", "shared", frozenset({"fisher"}),
+                                      ("dkv",), "d_h^-1/2"),
 }
 MLA_WIDTH_RULE = {"mla_ours_fisher_sigma_eig": "eigen",
                   "mla_w64_ours_fisher_sigma": "fixed:64", "mla_w64_transmla_sigma": "fixed:64",
@@ -123,7 +133,9 @@ MLA_WIDTH_RULE = {"mla_ours_fisher_sigma_eig": "eigen",
                   "mla_w64_ours_unrope_cost_fi": "fixed:64",
                   "mla_w16_ours_unrope_cost_fi": "fixed:16",
                   "mla_w64_ours_unrope_cost_si": "fixed:64", "mla_w16_ours_unrope_cost_si": "fixed:16",
-                  "mla_w64_ours_unrope_cost_ii": "fixed:64", "mla_w16_ours_unrope_cost_ii": "fixed:16"}
+                  "mla_w64_ours_unrope_cost_ii": "fixed:64", "mla_w16_ours_unrope_cost_ii": "fixed:16",
+                  "mla_w64_ours_unrope_cost_kl": "fixed:64", "mla_w16_ours_unrope_cost_kl": "fixed:16",
+                  "mla_w64_ours_unrope_cost_klsi": "fixed:64", "mla_w16_ours_unrope_cost_klsi": "fixed:16"}
 _MLA_WIDTH_RULES = ("argmin", "eigen", "fixed:64", "unrope_argmin", "fixed:16")
 _MLA_FIXED_W = {"fixed:64": 64, "fixed:16": 16}
 MLA_WIDTH_SCHEMA = "mla-width/v3"

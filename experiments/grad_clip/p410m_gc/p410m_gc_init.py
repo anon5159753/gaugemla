@@ -42,6 +42,61 @@ print(f"accounting  -> {GRID_INIT_DIR}/_cells.json")
 print(f"task caches -> {DATA_DIR}")
 
 # %%
+import glob
+import shutil
+
+_FROM = DRIVE_ROOT + "/MyDrive/gaugemla/kl_standin_50m/p410m_klgc"
+_TO = DRIVE_ROOT + "/MyDrive/gaugemla/grad_clip/p410m_gc"
+_FISHER = "fisher_pythia-410m_s20260912_n64_L512_o2000_truefisher_r20261014_x0.01_heldout.npz"
+_FITS = ('fisher', 'sigma')
+_CKPTS = ()
+_dry = os.environ.get("DRY_RUN") == "True"
+if CKPT_ROOT != _TO + "/init/ckpt":
+    raise RuntimeError(f"CKPT_ROOT {CKPT_ROOT} is not {_TO}/init/ckpt")
+for _f in _FITS:
+    _src = glob.glob(f"{_FROM}/{_f}/*.npz")
+    if not _src and _dry:
+        print(f"{_f}: not in p410m_klgc yet (its dry run fits nothing); a real run copies it")
+        continue
+    if len(_src) != 1:
+        raise RuntimeError(f"{_FROM}/{_f} holds {len(_src)} .npz files, not 1: run p410m_klgc's init first")
+    _name = os.path.basename(_src[0])
+    os.makedirs(f"{_TO}/{_f}", exist_ok=True)
+    _have = glob.glob(f"{_TO}/{_f}/*.npz")
+    if [os.path.basename(p) for p in _have] == [_name]:
+        if os.path.getsize(_have[0]) != os.path.getsize(_src[0]):
+            raise RuntimeError(f"{_have[0]} differs in size from p410m_klgc's {_src[0]}")
+        print(f"{_f}: p410m_klgc's {_name} already here")
+    elif not _have:
+        shutil.copy2(_src[0], f"{_TO}/{_f}/{_name}")
+        print(f"{_f}: copied p410m_klgc's {_name}")
+    else:
+        raise RuntimeError(f"{_TO}/{_f} holds {[os.path.basename(p) for p in _have]}, not p410m_klgc's {_name}")
+if not os.path.isfile(f"{_TO}/fisher/{_FISHER}") and not _dry:
+    raise RuntimeError(f"the Fisher in {_TO}/fisher is not {_FISHER}")
+os.makedirs(CKPT_ROOT, exist_ok=True)
+for _c in _CKPTS:
+    _dst, _src = f"{CKPT_ROOT}/{_c}", f"{_FROM}/init/ckpt/{_c}"
+    if os.path.isfile(f"{_dst}/kv_tying_meta.json"):
+        print(f"{_c}: already here")
+        continue
+    if os.path.exists(_dst):
+        raise RuntimeError(f"{_dst} exists without kv_tying_meta.json (an unfinished build): remove it, then rerun")
+    if not os.path.isfile(f"{_src}/kv_tying_meta.json"):
+        if _dry:
+            print(f"{_c}: not in p410m_klgc yet (its dry run builds nothing); a real run copies it")
+            continue
+        raise RuntimeError(f"no finished checkpoint {_src}: run p410m_klgc's init with DRY_RUN off first")
+    if _dry:
+        print(f"{_c}: a real run copies it from p410m_klgc")
+        continue
+    if os.path.exists(_dst + ".partial"):
+        shutil.rmtree(_dst + ".partial")
+    shutil.copytree(_src, _dst + ".partial")
+    os.rename(_dst + ".partial", _dst)
+    print(f"{_c}: copied from p410m_klgc")
+
+# %%
 import os
 import subprocess
 
@@ -76,10 +131,10 @@ MODULE_MANIFEST = {'src/dt_arch_llama.py': '51d567d483b254779344b86d642d2c503df8
  'src/dt_decoupled.py': 'd8361a42d5a81e5bde4c29574f4d2770726520b4',
  'src/dt_decoupled_arch.py': '9ce54c9fc162cea408ff99abab7b7ff2b15a89b3',
  'src/dt_eval_tasks.py': 'e588eb6a89e5208d7caaf30b9cfd54a1756a472a',
- 'src/dt_feasibility_arms.py': 'd0af1202c0f9dd5bea9129bdb4dec1c5599ea316',
+ 'src/dt_feasibility_arms.py': '2a22c2b174a5c0943950975acc5a73cc0cf2d49c',
  'src/dt_feasibility_train.py': '4c54fec049c8f7dccddf1131115ad8cde3ac2bdc',
  'src/dt_gqa_arch.py': '2dfeaef57063f9838ce3b7e87c2f4fa73401017d',
- 'src/dt_grid_models.py': '1a79fa2302cd077a3b1c0b8cd594f7fb369b332c',
+ 'src/dt_grid_models.py': 'bc1ee9c57f8c48bfdbd9b71acd4d131212353f4c',
  'src/dt_groupsearch.py': '2119e0a8a588b68bfbcb88cad95759a27d95a3a7',
  'src/dt_logs.py': 'ebeabd8a5cf762a54547e54bd46a8c10d899c7de',
  'src/dt_mla_arch.py': 'de2fe52f01729e5f77a56d7e53bf464fdd847446',
