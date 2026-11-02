@@ -42,7 +42,9 @@ print(f"accounting  -> {GRID_INIT_DIR}/_cells.json")
 print(f"task caches -> {DATA_DIR}")
 
 # %%
+import filecmp
 import glob
+import json
 import shutil
 
 _FROM = DRIVE_ROOT + "/MyDrive/gaugemla/grad_clip/p410m_gc"
@@ -51,8 +53,12 @@ _FISHER = "fisher_pythia-410m_s20260912_n64_L512_o2000_truefisher_r20261014_x0.0
 _FITS = ('fisher', 'sigma')
 _CKPTS = ()
 _dry = os.environ.get("DRY_RUN") == "True"
+_STALE = (f"{_TO} holds files from an earlier session that are not p410m_gc's (an older release's run?). Delete "
+          f"the whole folder {_TO} and rerun this cell, so that every method is built on p410m_gc's fits.")
 if CKPT_ROOT != _TO + "/init/ckpt":
     raise RuntimeError(f"CKPT_ROOT {CKPT_ROOT} is not {_TO}/init/ckpt")
+if glob.glob(f"{CKPT_ROOT}/*/kv_tying_meta.json") and any(not glob.glob(f"{_TO}/{_f}/*.npz") for _f in _FITS):
+    raise RuntimeError("finished checkpoints without the fits they were built from. " + _STALE)
 for _f in _FITS:
     _src = glob.glob(f"{_FROM}/{_f}/*.npz")
     if not _src and _dry:
@@ -64,20 +70,25 @@ for _f in _FITS:
     os.makedirs(f"{_TO}/{_f}", exist_ok=True)
     _have = glob.glob(f"{_TO}/{_f}/*.npz")
     if [os.path.basename(p) for p in _have] == [_name]:
-        if os.path.getsize(_have[0]) != os.path.getsize(_src[0]):
-            raise RuntimeError(f"{_have[0]} differs in size from p410m_gc's {_src[0]}")
+        if not filecmp.cmp(_have[0], _src[0], shallow=False):
+            raise RuntimeError(f"{_have[0]} is not p410m_gc's {_name}, byte for byte. " + _STALE)
         print(f"{_f}: p410m_gc's {_name} already here")
     elif not _have:
         shutil.copy2(_src[0], f"{_TO}/{_f}/{_name}")
         print(f"{_f}: copied p410m_gc's {_name}")
     else:
-        raise RuntimeError(f"{_TO}/{_f} holds {[os.path.basename(p) for p in _have]}, not p410m_gc's {_name}")
+        raise RuntimeError(f"{_TO}/{_f} holds {[os.path.basename(p) for p in _have]}, not p410m_gc's {_name}. "
+                           + _STALE)
 if not os.path.isfile(f"{_TO}/fisher/{_FISHER}") and not _dry:
     raise RuntimeError(f"the Fisher in {_TO}/fisher is not {_FISHER}")
 os.makedirs(CKPT_ROOT, exist_ok=True)
 for _c in _CKPTS:
     _dst, _src = f"{CKPT_ROOT}/{_c}", f"{_FROM}/init/ckpt/{_c}"
     if os.path.isfile(f"{_dst}/kv_tying_meta.json"):
+        _fp = [json.load(open(f"{_d}/kv_tying_meta.json")).get("fingerprint") if os.path.isfile(f"{_d}/kv_tying_meta.json")
+               else None for _d in (_dst, _src)]
+        if _fp[1] is not None and _fp[0] != _fp[1]:
+            raise RuntimeError(f"{_dst} has fingerprint {_fp[0]}, p410m_gc's has {_fp[1]}. " + _STALE)
         print(f"{_c}: already here")
         continue
     if os.path.exists(_dst):

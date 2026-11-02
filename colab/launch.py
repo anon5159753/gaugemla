@@ -115,7 +115,10 @@ def _rows(files):
     return out
 
 
-def _table(title, rows, cache):
+KL_KEYS = (("kl_mean", "KL to the teacher"), ("kl_orig_mean", "KL to the original model"))
+
+
+def _table(title, rows, cache, key="kl_mean"):
     cols = sorted({r[0]["G"] for r in rows.values()}, reverse=True)
     def label(rs):
         m = re.search(r"_B(\d+)_t0$", rs[0].get("ckpt") or "")
@@ -136,16 +139,17 @@ def _table(title, rows, cache):
             if rs is None:
                 line += f"{'':>22}"
                 continue
-            t0 = next((r["kl_mean"] for r in rs if r["tokens"] == 0), None)
+            t0 = next((r[key] for r in rs if r["tokens"] == 0), None)
             end = max(rs, key=lambda r: r["tokens"])
             ends.add(end["tokens"])
-            line += (f"{t0:>11.4f}" if t0 is not None else f"{'-':>11}") + f"{end['kl_mean']:>11.4f}"
+            line += (f"{t0:>11.4f}" if t0 is not None else f"{'-':>11}") + f"{end[key]:>11.4f}"
         print(line)
     print(f"end of training: {', '.join(f'{t:,}' for t in sorted(ends))} tokens")
 
 
 def kl_table(tag, test_tokens=0):
-    """KL to the teacher at t = 0 and at the end of training: this run (Drive) beside the paper's (results/)."""
+    """KL to the teacher and to the original model, at t = 0 and at the end of training: this run (Drive) beside the
+    paper's logged run (results/), for the methods this run trained."""
     runs = f"{DRIVE}/{FOLDER[tag]}/{tag}/runs"
     stamps = [s for s in glob.glob(f"{runs}/grid-{tag}-*")
               if (s.endswith(f"-test{test_tokens}") if test_tokens else "-test" not in os.path.basename(s))]
@@ -155,9 +159,11 @@ def kl_table(tag, test_tokens=0):
         print(f"this run: {len(stamps)} matching stamp folders under {runs}: {stamps}")
     else:
         mine = _rows(glob.glob(f"{stamps[0]}/kd_*.jsonl"))
-        _table(f"this run ({os.path.basename(stamps[0])}): KL to the teacher, mean over the eval documents", mine, cache)
+        for key, what in KL_KEYS:
+            _table(f"THIS RUN ({os.path.basename(stamps[0])}): {what}, mean over the eval documents", mine, cache, key)
     if tag not in RESULTS:
-        print(f"\nresults/ holds the 50M training runs only, so it has no logged run of {tag} to set beside this one.")
+        print(f"\nresults/ holds the paper's 50M training runs only, so it has no logged run of {tag} to set beside "
+              "this one.")
         return
     if not os.path.isdir(f"{REPO_DIR}/results/{RESULTS[tag]}"):
         subprocess.run(["git", "-C", REPO_DIR, "sparse-checkout", "add", f"results/{RESULTS[tag]}"], check=True)
@@ -165,7 +171,13 @@ def kl_table(tag, test_tokens=0):
     arms = {r[0]["arm"] for r in mine.values()}
     if arms:
         ref = {b: r for b, r in ref.items() if r[0]["arm"] in arms}
-    _table(f"FROM THE PAPER, not run in this session: the logged run in results/{RESULTS[tag]}"
-           + (", the methods this run trained" if arms else ""), ref, cache)
-    print("t = 0 is the draw each branch trains from; the paper's t = 0 entries for GaugeMLA and A_p^ramp average "
-          "five draws.")
+    for key, what in KL_KEYS:
+        _table(f"FROM THE PAPER, not run in this session (results/{RESULTS[tag]}"
+               + (", the methods this run trained" if arms else "") + f"): {what}", ref, cache, key)
+    print("\nt = 0 is the initialisation each branch trains from (Fisher label seed 20261014). The paper's tables "
+          "print GaugeMLA's and A_p^ramp's t = 0 as the mean over five draws of the Fisher's labels (five label "
+          "seeds, this one the first); the other methods' t = 0 and every 50M value are these runs' own.")
+    if test_tokens and mine:
+        print(f"This was a test run of {test_tokens:,} training tokens: its t = 0 should be close to the paper's t = 0 "
+              "above (the fits are redone on this machine, so expect differences in the last digits), while its end "
+              "is after a few optimiser steps and is not comparable with the paper's 50M.")

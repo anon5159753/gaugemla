@@ -241,11 +241,12 @@ with more powerful computing resources.
 The logged 50M training runs of every method, and GaugeMLA's evaluation on the full task splits, are here as JSON.
 Weights and fitted matrices (`.npz`) are not included, but the fits and t = 0 checkpoints can be initialised quickly
 (`colab/pythia410m_init.ipynb`). The paper's other experiments (the 5M comparison of constructions, the five draws of
-$F_i$ and the ablations) are included as code in `experiments/`, not as data.
+$F_i$ and the ablations) are included as code in `experiments/`, not as data. [`results/README.md`](results/README.md)
+says which folder is GaugeMLA and how it differs from its ablation $A_p^{\mathrm{ramp}}$.
 
 | folder | contents |
 |---|---|
-| `results/kl_standin_50m/<model>/` | **GaugeMLA's 50M training runs**, 7 models, at 25 / 12.5 / 6.25% of the KV cache. `G<G>.jsonl` has one row per evaluation point (KL to the teacher and to the original model with their standard errors and per-document values, the task battery at selected points, gradient norms), beside the stamp's `manifest.json` and `reference.json`, `init/` (each t = 0 checkpoint's record) and `models/` (each saved model's config and conversion record). `NAMES.txt` maps these names to the original run names and gives each model's G per budget. `README.md` says how GaugeMLA differs from its ablation $A_p^{\mathrm{ramp}}$ in `results/<model>_gc/`. |
+| `results/kl_standin_50m/<model>/` | **GaugeMLA's 50M training runs**, 7 models, at 25 / 12.5 / 6.25% of the KV cache. `G<G>.jsonl` has one row per evaluation point (KL to the teacher and to the original model with their standard errors and per-document values, the task battery at selected points, gradient norms), beside the stamp's `manifest.json` and `reference.json`, `init/` (each t = 0 checkpoint's record) and `models/` (each saved model's config and conversion record). `NAMES.txt` maps these names to the original run names and gives each model's G per budget. |
 | `results/<model>_gc/` | **The other methods' 50M training runs**, 7 models, the same recipe, evaluation documents and training stream: TransMLA and MHA2MLA on every model, CARE on the four multi-head ones, and the ablation $A_p^{\mathrm{ramp}}$ (arm `mla_w*_ours_unrope_cost`). `runs/<stamp>/kd_*_<branch>_s42.jsonl` has the same rows, beside the stamp's `_manifest.json`, reference and summary rows, and `models/*/`. `init/` holds each t = 0 checkpoint's record and `_cells.json`. |
 | `results/kl_standin_eval/<model>/` | **GaugeMLA on the full task splits**: its t = 0 initialisations (`G<G>_t0.json`) and saved 50M models (`G<G>_50M.json`), and the original model (`original.json`), each on the ten tasks. `NAMES.txt` maps the names to the original ones. |
 
