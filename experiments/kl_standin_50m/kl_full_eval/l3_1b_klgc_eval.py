@@ -1,10 +1,10 @@
 # l3_1b_klgc full evaluation: scores the t = 0 inits and saved 50M models of l3_1b_klgc's branches (GaugeMLA) on the full task splits.
-# Cluster form (a PBS job; DRIVE_ROOT is the cluster's storage), kept as the code behind results/kl_standin_eval/.
+# Batch form (DRIVE_ROOT is where the training runs saved their models), kept as the code behind results/kl_standin_eval/.
 
 import os
-if not os.environ.get("PBS_JOBID"):
-    raise SystemExit("l3_1b_klgc_eval.py runs only inside a PBS job on cluster (bash ~/kvtying/kl_full_eval/submit_all.sh, or "
-                     "qsub -v TAG=l3_1b_klgc jobs/eval.pbs from ~/kvtying/kl_full_eval/logs), never on a login node.")
+if not os.environ.get("JOB_ID"):
+    raise SystemExit("l3_1b_klgc_eval.py runs only as a batch job ("
+                     "with TAG=l3_1b_klgc), never interactively.")
 
 # %%
 import os
@@ -16,8 +16,8 @@ DATA_DIR   = DRIVE_ROOT + "/MyDrive/gaugemla/grid/_tok/5cc5f00a5b20/battery13"
 
 if not os.path.isdir(DRIVE_ROOT + "/MyDrive"):
     raise RuntimeError(
-        f"{DRIVE_ROOT}/MyDrive does not exist. On cluster it is made once, on the login node, by "
-        "setup_cluster.sh; if it was, this node cannot see the home volume: report the node to the admins. "
+        f"{DRIVE_ROOT}/MyDrive does not exist. It is made once, before any run, by "
+        "the setup script; if it was, this machine cannot see it. "
         "⛔ There is no alternative save path.")
 
 for _name, _d in (("CKPT_ROOT", CKPT_ROOT), ("RUNS_ROOT", RUNS_ROOT), ("DATA_DIR", DATA_DIR)):
@@ -29,7 +29,7 @@ for _d in (CKPT_ROOT, RUNS_ROOT, DATA_DIR):
     os.makedirs(_d, exist_ok=True)
 
 for _d in (CKPT_ROOT, RUNS_ROOT, DATA_DIR):
-    _probe = os.path.join(_d, f".write_probe.{os.environ.get('PBS_JOBID', os.getpid())}")
+    _probe = os.path.join(_d, f".write_probe.{os.environ.get('JOB_ID', os.getpid())}")
     try:
         with open(_probe, "w") as _f:
             _f.write("probe")
@@ -59,13 +59,13 @@ try:
     import zstandard
     print("zstandard   ", zstandard.__version__, "(needed for the .zst training shards)")
 except ImportError:
-    raise RuntimeError("zstandard is missing from the venv: install it on the login node with setup_cluster.sh, "
-                       "then resubmit. A job never installs packages.")
+    raise RuntimeError("zstandard is missing from the venv: install it first, "
+                       "then rerun. A run never installs packages.")
 
 if not torch.cuda.is_available():
     raise RuntimeError(
         "NO GPU. This notebook refuses to run on CPU.\n"
-        "On cluster, submit it with jobs/run.pbs (-q gpuq -l ngpus=1), then rerun.\n"
+        "Run it on a GPU, then rerun.\n"
         "There is deliberately no CPU fallback: it would produce numbers that look fine, take 100x "
         "longer, and say nothing about it in the output.")
 
@@ -76,7 +76,7 @@ print("device      ", _props.name)
 print("vram        ", f"{VRAM_GB:.1f} GB")
 if VRAM_GB < 15:
     raise RuntimeError(f"{VRAM_GB:.1f} GB is not enough: fp32 peak is ~8.7 GB with gradient "
-                       f"checkpointing and ~13.9 GB without. On cluster use gpuq (jobs/run.pbs).")
+                       f"checkpointing and ~13.9 GB without.")
 if VRAM_GB < 20:
     print("             NOTE: 16 GB class device -- keep gradient checkpointing ON (peak ~8.7 GB).")
 
@@ -209,7 +209,7 @@ CELL_W = {('mla_w16_ours_unrope_cost_kl', 0.5): ('fixed:16', 16),
 CARE_ARMS = ('mla_care_sigma', 'mla_w64_care_sigma')
 MAX_TOKENS     = 50_000_000
 if os.environ.get("MAX_TOKENS", "50M") != "50M":
-    raise RuntimeError(f"this model trains 50M per branch only (qsub -v MAX_TOKENS=50M), "
+    raise RuntimeError(f"this model trains 50M per branch only (MAX_TOKENS=50M), "
                        f"got {os.environ.get('MAX_TOKENS')!r}")
 LR_PEAK        = 2e-5
 MODEL            = GRID["hf_id"]
@@ -391,7 +391,7 @@ print(f"cells      {len(RUN_CELLS)} branches at {MAX_TOKENS // 1_000_000}M from 
       f"({REGISTRY_SHA[:16]})")
 OUT_DIR = os.path.join(RUNS_ROOT, STAMP)
 os.makedirs(OUT_DIR, exist_ok=True)
-_probe = os.path.join(OUT_DIR, f".write_probe.{os.environ.get('PBS_JOBID', os.getpid())}")
+_probe = os.path.join(OUT_DIR, f".write_probe.{os.environ.get('JOB_ID', os.getpid())}")
 with open(_probe, "w") as _f:
     _f.write("probe")
 with open(_probe) as _f:
@@ -412,17 +412,17 @@ else:
 # %%
 from huggingface_hub import constants as _hfc
 if os.environ.get("HF_HUB_OFFLINE") != "1":
-    raise RuntimeError("HF_HUB_OFFLINE is not 1: submit this through jobs/eval.pbs, which sets it. This job reads only "
-                       "what is already on cluster and must not download anything.")
+    raise RuntimeError("HF_HUB_OFFLINE is not 1: set it to 1. This script reads only "
+                       "what is already on disk and must not download anything.")
 _snap = os.path.join(_hfc.HF_HUB_CACHE, "models--" + MODEL.replace("/", "--"), "snapshots", MODEL_REVISION)
 _wts = [f for f in (os.listdir(_snap) if os.path.isdir(_snap) else []) if f.endswith((".safetensors", ".bin"))]
 if not os.path.isfile(os.path.join(_snap, "config.json")) or not _wts:
-    raise RuntimeError(f"{MODEL} @ {MODEL_REVISION} is not in the Hub cache ({_snap}). Every run job of this tag loaded "
-                       f"it from there; if the cache was cleared, tell the authors. Do not run this job online instead.")
+    raise RuntimeError(f"{MODEL} @ {MODEL_REVISION} is not in the Hub cache ({_snap}). Every training run of this tag loaded "
+                       f"it from there; if the cache was cleared, tell the authors. Do not run this script online instead.")
 _TASKS13 = ['lambada', 'piqa', 'arc_easy', 'boolq', 'siqa', 'openbookqa', 'hellaswag', 'induction', 'kv_synth_N50', 'arith_1d', 'arc_challenge', 'winogrande', 'mmlu']
 _miss = [t for t in _TASKS13 if not os.path.isfile(os.path.join(DATA_DIR, f"{t}.json"))]
 if _miss:
-    raise RuntimeError(f"task caches missing from {DATA_DIR}: {_miss}. The run jobs read all 13 there; this job "
+    raise RuntimeError(f"task caches missing from {DATA_DIR}: {_miss}. The training runs read all 13 there; this script "
                        f"cannot rebuild them offline. Tell the authors.")
 if not os.path.isfile(os.path.join(OUT_DIR, "_manifest.json")):
     raise RuntimeError(f"{OUT_DIR}/_manifest.json is missing: this is not the stamp the models were trained in.")
@@ -2202,7 +2202,7 @@ ORIGINAL_REF = {
 assert set(EVAL_TASKS) <= set(FEASIBILITY_TASKS) and set(EVAL_TASKS) <= set(ORIGINAL_REF)
 
 os.makedirs(EVAL_DIR, exist_ok=True)
-_probe_e = os.path.join(EVAL_DIR, f".write_probe.{os.environ.get('PBS_JOBID', os.getpid())}")
+_probe_e = os.path.join(EVAL_DIR, f".write_probe.{os.environ.get('JOB_ID', os.getpid())}")
 with open(_probe_e, "w") as _f:
     _f.write("probe")
 with open(_probe_e) as _f:
@@ -2275,7 +2275,7 @@ def _paths(eid):
     return os.path.join(EVAL_DIR, f"{eid}.json"), os.path.join(EVAL_DIR, f"{eid}.items.json.gz")
 
 def _atomic(path, data):
-    tmp = f"{path}.tmp.{os.environ.get('PBS_JOBID', os.getpid())}"
+    tmp = f"{path}.tmp.{os.environ.get('JOB_ID', os.getpid())}"
     with open(tmp, "wb") as f:
         f.write(data)
         f.flush()
@@ -2359,7 +2359,7 @@ def _write(e, rep, tasks, per_item, secs):
          "fingerprint": e["fingerprint"], "state_fingerprint": e.get("state_fingerprint"),
          "init_fingerprint": e.get("init_fingerprint"), "model": MODEL, "model_revision": MODEL_REVISION,
          "stamp": STAMP, "registry_sha": REGISTRY_SHA, "eval_script_sha256": EVAL_SCRIPT_SHA,
-         "pbs_jobid": os.environ.get("PBS_JOBID"), "evaluated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+         "job_id": os.environ.get("JOB_ID"), "evaluated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
          "device": torch.cuda.get_device_name(DEV) if DEV.type == "cuda" else str(DEV),
          "tf32_matmul": bool(torch.backends.cuda.matmul.allow_tf32),
          "versions": {"torch": torch.__version__, "transformers": transformers.__version__},
@@ -2376,7 +2376,7 @@ for _k, e in enumerate(PLAN):
     have = _finished(e)
     if have is not None:
         DONE[e["id"]] = have
-        print(f"[{_k + 1}/{len(PLAN)}] {e['id']}: already done ({have['evaluated_at']}, job {have['pbs_jobid']}), skipped")
+        print(f"[{_k + 1}/{len(PLAN)}] {e['id']}: already done ({have['evaluated_at']}, job {have['job_id']}), skipped")
         continue
     print(f"\n[{_k + 1}/{len(PLAN)}] {e['id']}  ({e['path']})")
     model, _t_model = None, time.time()
@@ -2400,7 +2400,7 @@ for _k, e in enumerate(PLAN):
     except Exception as ex:
         traceback.print_exc()
         FAILED.append((e["id"], f"{type(ex).__name__}: {str(ex)[:400]}"))
-        print(f"    ⛔ {e['id']} FAILED; nothing written for it. The job goes on to the next model and exits 1 at the end.")
+        print(f"    ⛔ {e['id']} FAILED; nothing written for it. The script goes on to the next model and exits 1 at the end.")
     finally:
         if model is not None and model is not teacher:
             del model
@@ -2423,7 +2423,7 @@ for e in PLAN:
           f"{j['battery500']['max_abs_d']:.3f})")
 DIFFERS = [i for i, j in DONE.items() if j["battery500"]["verdict"] != "REPRODUCES"]
 MISSING = [e["id"] for e in PLAN if e["id"] not in DONE]
-print(f"\n{len(DONE)} of {len(PLAN)} models done; {len(DIFFERS)} DIFFERS; {len(FAILED)} failed in this job")
+print(f"\n{len(DONE)} of {len(PLAN)} models done; {len(DIFFERS)} DIFFERS; {len(FAILED)} failed in this run")
 for i, msg in FAILED:
     print(f"  FAILED  {i}: {msg}")
 if FAILED or DIFFERS or MISSING:

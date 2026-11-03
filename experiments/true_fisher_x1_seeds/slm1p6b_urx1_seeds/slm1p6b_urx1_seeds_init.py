@@ -10,7 +10,7 @@ FISHER_LABEL_SEEDS = (20262014, 20263014, 20264014, 20265014)
 FISHER_LABEL_SEED = int(os.environ.get("FISHER_LABEL_SEED") or 0)
 if FISHER_LABEL_SEED not in FISHER_LABEL_SEEDS:
     raise RuntimeError(f"FISHER_LABEL_SEED={os.environ.get('FISHER_LABEL_SEED')!r}: this tag builds one init "
-                       f"per seed in {FISHER_LABEL_SEEDS}, and the job sets it (jobs/init.pbs)")
+                       f"per seed in {FISHER_LABEL_SEEDS}, and the launcher sets it")
 CKPT_ROOT  = CKPT_ROOT + f"/r{FISHER_LABEL_SEED}"
 print(f"@@TFSEED@@ label seed {FISHER_LABEL_SEED}: checkpoints -> {CKPT_ROOT}")
 GRID_INIT_DIR = DRIVE_ROOT + "/MyDrive/gaugemla/grid/slm1p6b_urx1_seeds/init"

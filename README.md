@@ -240,7 +240,7 @@ GaugeMLA's own code, apart from the baselines':
   - `kl_standin_ablation/` (14 kits) and `true_fisher_x1_seeds/` (7 kits), t = 0 only: GaugeMLA at four more draws of
     $F_i$ (`_kls`), the ablation Σ = I at all five (`_klsi`), and $A_p^{\mathrm{ramp}}$ at four more (`_seeds`).
   - `kl_standin_50m/kl_full_eval/`, `grad_clip/full_eval/` and `kl_standin_ablation/kl_abl_eval/`: the full-split task
-    evaluations, in the cluster form they ran in.
+    evaluations, as the batch scripts they ran as.
 
 For anonymity, comments and docstrings have been removed from the code, and names and absolute paths have been
 redacted from strings in `results/`. All numbers are as logged. Hashes recorded in `results/` refer to the original

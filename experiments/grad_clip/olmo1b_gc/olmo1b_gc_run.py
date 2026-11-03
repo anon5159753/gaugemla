@@ -2704,7 +2704,7 @@ if _branch:
         raise RuntimeError(f"BRANCH={_branch!r} is not a branch this run trains: "
                            f"{sorted(f'{a}_G{g}' for a, g in RUN_CELLS)}")
     RUN_ARMS, RUN_GS = (_arm,), (_gv,)
-    print(f"BRANCH     {_branch}: this job trains that one branch ({MAX_TOKENS // 1_000_000}M tokens)")
+    print(f"BRANCH     {_branch}: this run trains that one branch ({MAX_TOKENS // 1_000_000}M tokens)")
 
 # %%
 for _n in ("MAX_TOKENS", "EVAL_AT_TOKENS", "LR", "BATCH", "SEQ_LEN", "GRAD_CKPT", "probe",
@@ -2731,7 +2731,7 @@ if os.path.abspath(MODEL_OUT).startswith(os.path.abspath(CKPT_ROOT) + os.sep):
 os.makedirs(MODEL_OUT, exist_ok=True)
 
 import shutil as _shutil
-_probe_m = os.path.join(MODEL_OUT, f".write_probe.{os.environ.get('PBS_JOBID', os.getpid())}")
+_probe_m = os.path.join(MODEL_OUT, f".write_probe.{os.environ.get('JOB_ID', os.getpid())}")
 try:
     with open(_probe_m, "w") as _f:
         _f.write("probe")

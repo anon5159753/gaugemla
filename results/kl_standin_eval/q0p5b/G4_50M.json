@@ -17,7 +17,7 @@
  "stamp": "grid-q0p5b_klgc-Qwen1.5-4B-float32-50M-lr2e-05-s42",
  "registry_sha": "cdf75b465716cea49505a994c36c44b2d08a7ec8236af7fd56f47e5c08d278a2",
  "eval_script_sha256": "e25080b616d9307757518aaef909cbce85366a5cb6f244bf3ca5ec876202afb8",
- "pbs_jobid": "232001.node",
+ "job_id": "232001",
  "evaluated_at": "2026-10-30T07:40:08Z",
  "device": "NVIDIA L40",
  "tf32_matmul": true,

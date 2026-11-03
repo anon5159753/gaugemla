@@ -2599,8 +2599,8 @@ if _branch:
             | ({("mha", 0)} if "mha" in RUN_ARMS else set()))
     if _got != set(_want):
         raise RuntimeError(f"BRANCH={_branch!r} would train {sorted(f'{a}_G{g}' for a, g in _got)}, not exactly the "
-                           f"listed branches: list every arm at one G (and mha_G0 if wanted), or one branch per job")
-    print(f"BRANCH     {_branch}: this job trains these {len(_want)} branch(es), one after another "
+                           f"listed branches: list every arm at one G (and mha_G0 if wanted), or one branch per run")
+    print(f"BRANCH     {_branch}: this run trains these {len(_want)} branch(es), one after another "
           f"({MAX_TOKENS // 1_000_000}M tokens each)")
 
 # %%

@@ -10,7 +10,7 @@ FISHER_LABEL_SEEDS = (20262014, 20263014, 20264014, 20265014)
 FISHER_LABEL_SEED = int(os.environ.get("FISHER_LABEL_SEED") or 0)
 if FISHER_LABEL_SEED not in FISHER_LABEL_SEEDS:
     raise RuntimeError(f"FISHER_LABEL_SEED={os.environ.get('FISHER_LABEL_SEED')!r}: this tag is measured one "
-                       f"seed per process in {FISHER_LABEL_SEEDS}, and the job sets it (jobs/run.pbs)")
+                       f"seed per process in {FISHER_LABEL_SEEDS}, and the launcher sets it")
 CKPT_ROOT  = CKPT_ROOT + f"/r{FISHER_LABEL_SEED}"
 print(f"@@TFSEED@@ label seed {FISHER_LABEL_SEED}: checkpoints <- {CKPT_ROOT}")
 RUNS_ROOT  = DRIVE_ROOT + "/MyDrive/gaugemla/grid/q0p5b_tx1_kls/runs"
@@ -2697,7 +2697,7 @@ if _branch:
         raise RuntimeError(f"BRANCH={_branch!r} is not a branch this run trains: "
                            f"{sorted(f'{a}_G{g}' for a, g in RUN_CELLS)}")
     RUN_ARMS, RUN_GS = (_arm,), (_gv,)
-    print(f"BRANCH     {_branch}: this job trains that one branch ({MAX_TOKENS // 1_000_000}M tokens)")
+    print(f"BRANCH     {_branch}: this run trains that one branch ({MAX_TOKENS // 1_000_000}M tokens)")
 
 # %%
 RUN = [(a, g) for a, g in BRANCHES

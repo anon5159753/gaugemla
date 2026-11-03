@@ -17,7 +17,7 @@
  "stamp": "grid-p410m_klgc-pythia-2.8b-float32-50M-lr2e-05-s42",
  "registry_sha": "6feb6618b122022759073c78f35800564f862c1c6d0f08f25fd61f37dcabe23f",
  "eval_script_sha256": "1b9e3af32bed0d83aa1c3ef7762e0603dbb4a4c0416eec99e4469d40e7a6bdf1",
- "pbs_jobid": "231756.node",
+ "job_id": "231756",
  "evaluated_at": "2026-10-30T06:54:11Z",
  "device": "NVIDIA L40",
  "tf32_matmul": true,

@@ -17,7 +17,7 @@
  "stamp": "grid-l3_1b_klgc-Llama-3.1-8B-float32-50M-lr2e-05-s42",
  "registry_sha": "5f8f6c3507e78f74824a4c76881822fdbeb2a82bd82dd6ca047aae3cf18b25da",
  "eval_script_sha256": "5eb04a6dd85341167be9b1f04b18b6543bdadd1a67467c2f6b2b852970d962f2",
- "pbs_jobid": "232002.node",
+ "job_id": "232002",
  "evaluated_at": "2026-10-30T08:32:04Z",
  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
  "tf32_matmul": true,

@@ -1,4 +1,4 @@
-Short names -> original (grid/kl_standin_50m/results/ on the laptop; ~/kvtying/drive/MyDrive/gaugemla/kl_standin_50m/<tag>/full_eval/ on cluster). G<G>_t0 = the t = 0 init, G<G>_50M = the saved 50M model; largest G = 25%, then 12.5%, 6.25%.
+Short names -> original (grid/kl_standin_50m/results/; ~/kvtying/drive/MyDrive/gaugemla/kl_standin_50m/<tag>/full_eval/). G<G>_t0 = the t = 0 init, G<G>_50M = the saved 50M model; largest G = 25%, then 12.5%, 6.25%.
 
 kleval/l3_1b/G0.5_50M.json	l3_1b_klgc/full_eval/mla_w16_ours_unrope_cost_kl_G0.5_50M.json
 kleval/l3_1b/G0.5_t0.json	l3_1b_klgc/full_eval/mla_w16_ours_unrope_cost_kl_G0.5_t0.json

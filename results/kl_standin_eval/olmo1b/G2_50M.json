@@ -17,7 +17,7 @@
  "stamp": "grid-olmo1b_klgc-OLMo-7B-hf-float32-50M-lr2e-05-s42",
  "registry_sha": "c8ce2909f937a9928beb423879365ff859d05e8372834da1dc19eec322b9202c",
  "eval_script_sha256": "25818f88f54f3b1aefba9e1d27c475e30d4317cd4b0f14c71e0bff4bf2a9b2fa",
- "pbs_jobid": "231999.node",
+ "job_id": "231999",
  "evaluated_at": "2026-10-30T07:36:06Z",
  "device": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
  "tf32_matmul": true,
