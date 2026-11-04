@@ -118,8 +118,9 @@ rescales. With $F_i$ carried over, so that it leaves out the same tokens, it doe
 
 ## Running it
 
-Open any notebook in `colab/` and run its Setup cell, which mounts Drive and clones this repository. On a High-RAM
-CPU runtime, build the initialisations, `identity` first:
+[`colab/pythia410m_regauge.ipynb`](../../colab/pythia410m_regauge.ipynb) runs the two steps below. Or open any
+notebook in `colab/` and run its Setup cell, which mounts Drive and clones this repository. On a High-RAM CPU
+runtime, build the initialisations, `identity` first:
 
 ```python
 for c in ("identity", "kvs", "kvd", "kvs_xf", "kvd_xf"):
@@ -135,5 +136,5 @@ for c in ("identity", "kvs", "kvd", "kvs_xf", "kvd_xf"):
 
 Everything is written under `MyDrive/gaugemla/regauge_test/p410m_rgkv/`. Each condition gets its own folder with its
 check, its fits and its checkpoints, and the scored rows go in `runs/`. The 42 checkpoints take about 70 GB of Drive.
-These are the scripts the paper's numbers come from, converted to the Colab form of the other kits. The Colab form has
-been checked structurally only and has not been run on Colab.
+These are the scripts the paper's numbers come from, converted to the Colab form of the other kits. The Colab form and
+the notebook have been checked structurally only and have not been run on Colab.

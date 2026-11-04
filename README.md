@@ -151,9 +151,10 @@ initialisation first.
 is built and trained with the baselines.
 
 **To run GaugeMLA, use `colab/pythia410m_gaugemla.ipynb` only.** It builds GaugeMLA's three t = 0 checkpoints and
-trains them, and nothing else. The other three notebooks are for the complete experiments, GaugeMLA beside every
-method it is compared with: they build every method's checkpoints (15 for the 50M grid and 21 more for the 5M grid,
-against GaugeMLA's 3), so they take much longer to initialise.
+trains them, and nothing else. The init and two training notebooks are for the complete experiments, GaugeMLA beside
+every method it is compared with, and `pythia410m_regauge.ipynb` runs the regauge test. The complete experiments
+build every method's checkpoints (15 for the 50M grid and 21 more for the 5M grid, against GaugeMLA's 3), so they
+take much longer to initialise.
 
 | notebook | runtime | what it does |
 |---|---|---|
@@ -163,6 +164,8 @@ against GaugeMLA's 3), so they take much longer to initialise.
 | `colab/pythia410m_init.ipynb` | CPU, High-RAM | the t = 0 checkpoints of every method, in four cells: GaugeMLA, then TransMLA, MHA2MLA, CARE and $A_p^{\mathrm{ramp}}$ (the 50M grid); GaugeMLA, then the other constructions (the 5M grid) |
 | `colab/pythia410m_train_50M.ipynb` | A100, High-RAM | 50M-token training: GaugeMLA's 3 branches in one cell, the 12 of TransMLA, MHA2MLA, CARE and $A_p^{\mathrm{ramp}}$ in the next; saves each final model |
 | `colab/pythia410m_train_5M.ipynb` | A100, High-RAM | 5M-token training: GaugeMLA's 3 branches in one cell, the other constructions' 18 (the MHA control included) in the next |
+| **The regauge test** | | |
+| `colab/pythia410m_regauge.ipynb` | CPU, High-RAM, then A100 | the regauge test, the paper's Tables 3 and 4 (about 70 GB of Drive; not yet run on Colab): see [`experiments/regauge_test/README.md`](experiments/regauge_test/README.md) |
 
 Each notebook mounts Google Drive, clones only the parts of the repository it uses, and starts that experiment's
 script. Everything is written under `MyDrive/gaugemla/`: `kl_standin_50m/p410m_klgc/` (GaugeMLA) and
