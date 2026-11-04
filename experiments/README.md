@@ -1,8 +1,8 @@
 # Experiments: what the names mean
 
 Each `<experiment>/<tag>/` holds two scripts. `<tag>_init.py` builds the t = 0 checkpoints, and `<tag>_run.py`
-trains each branch by knowledge distillation (in `true_fisher_x1_seeds/` and `kl_standin_ablation/` it only measures
-the checkpoints). `colab/launch.py` runs either one.
+trains each branch by knowledge distillation (in `true_fisher_x1_seeds/`, `kl_standin_ablation/` and `regauge_test/`
+it only measures the checkpoints). `colab/launch.py` runs either one.
 
 `results/` holds the logged 50M training runs and GaugeMLA's full-split evaluation:
 
@@ -12,8 +12,10 @@ the checkpoints). `colab/launch.py` runs either one.
   50M models scored on the full task splits.
 
 The other experiments are here as code: `grad_clip_5m/` and `kl_standin_5m/` (Pythia-410m, 5M tokens),
-`true_fisher_x1_seeds/` and `kl_standin_ablation/` (the t = 0 seed study and the Σ = I ablation), and the
-evaluation scripts `grad_clip/full_eval/` and `kl_standin_ablation/kl_abl_eval/`. The paper reports their results.
+`true_fisher_x1_seeds/` and `kl_standin_ablation/` (the t = 0 seed study and the Σ = I ablation), `regauge_test/`
+(MHA2MLA, TransMLA, CARE and GaugeMLA built from a regauged Pythia-410m; its own
+[README](regauge_test/README.md) defines the gauges and gives the paper's tables), and the evaluation scripts
+`grad_clip/full_eval/` and `kl_standin_ablation/kl_abl_eval/`. The paper reports their results.
 
 ## Names
 

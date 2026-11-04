@@ -45,7 +45,8 @@ FOLDER = {
     "sm360m_tx1_klsi": "kl_standin_ablation",
     "olmo1b_tx1_klsi": "kl_standin_ablation",
     "q0p5b_tx1_klsi": "kl_standin_ablation",
-    "l3_1b_tx1_klsi": "kl_standin_ablation"
+    "l3_1b_tx1_klsi": "kl_standin_ablation",
+    "p410m_rgkv": "regauge_test"
 }
 NAMES = {
     "mla_w64_ours_unrope_cost_kl": "GaugeMLA",

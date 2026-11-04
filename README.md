@@ -1,14 +1,17 @@
 # GaugeMLA: code, data and Colab notebooks
 
-The attention mechanism has free parameters that do not change its output: a trained model's key and value weights
-are one of many bases, related by a gauge symmetry, that give the same query–key and output–value circuits.
-Converting a model to a smaller KV cache is an initialisation followed by uptraining, and these free parameters can
-be used to limit the damage the initialisation does to attention. Earlier work on tying key and value heads uses
-only orthogonal matrices as the gauge, the rotations of the query–key inner product (Jin et al., 2024; TransMLA).
-GaugeMLA is the initialisation that naturally arises from acknowledging the whole symmetry, and it fully leverages
-the gauge freedom for a superior initialisation. It converts a model's attention to Multi-head Latent Attention
-(MLA) by minimising the KL divergence to the original model over every change of basis the gauge allows; rotary
-positional embeddings restrict the gauge, and decoupling the rotary key, as MLA does, restores it.
+Attention has an underexplored gauge symmetry: a change of basis inside each head alters a trained model's key and
+value weights but leaves its query–key and output–value circuits, and hence its output, unchanged. A KV cache
+compression method should therefore perform the same under any regauge, as the model has not fundamentally changed.
+Existing initialisation methods do not. They perform better or worse depending on the regauge
+([the regauge test](experiments/regauge_test/)), and may therefore need longer or shorter uptraining to recover the
+original model's ability. Rather than fixing the gauge, GaugeMLA uses this freedom to minimise the change in the
+compressed model's output. Tying heads in groups damages the circuits as much as a single shared content latent or
+more, and rotary positional embeddings (RoPE) restrict the gauge, which the decoupled RoPE of Multi-head Latent
+Attention (MLA) restores. From these findings GaugeMLA emerges. It converts a model's attention to MLA by minimising
+the KL divergence to the original model over the gauge, an objective that motivates how to initialise MLA and how to
+un-rope the rotary key rows. On seven models and three KV cache budgets, GaugeMLA provides a better initialisation
+than other MLA conversion methods, and the advantage persists through knowledge distillation to the final model.
 
 ## The gauge symmetry of attention
 
@@ -38,6 +41,10 @@ $\Omega_i^{-\top} = \Omega_i$, are the rotations of the query–key inner produc
 the whole of $\mathrm{GL}$. With rotary positional embeddings the logit between positions $m$ and $n$ is
 $x_m W_{Q_i}^\top R_\delta W_{K_i} x_n^\top$ with $\delta = n - m$, so the key gauge must commute with every rotation,
 $\Omega_i R_\delta = R_\delta \Omega_i$; decoupling the rotary key, as MLA does, leaves the rest of the key's gauge free.
+
+[`experiments/regauge_test/`](experiments/regauge_test/) applies two such gauges to Pythia-410m and converts the
+regauged checkpoint with each method. Its README defines the gauges and gives the paper's Tables 3 and 4: the
+baselines' initialisations get better or worse with the gauge, while GaugeMLA's barely moves.
 
 ![Figure 1: A single attention layer for MHA, GQA, and Gauged GQA](docs/figure1.png)
 
@@ -175,7 +182,7 @@ with more powerful computing resources.
 The logged 50M training runs of every method, and GaugeMLA's evaluation on the full task splits, are here as JSON.
 Weights and fitted matrices (`.npz`) are not included, but the fits and t = 0 checkpoints can be initialised quickly
 (`colab/pythia410m_init.ipynb`). The paper's other experiments (the 5M comparison of constructions, the five draws of
-$F_i$ and the ablations) are included as code in `experiments/`, not as data. [`results/README.md`](results/README.md)
+$F_i$, the ablations and the regauge test) are included as code in `experiments/`, not as data. [`results/README.md`](results/README.md)
 says which folder is GaugeMLA and how it differs from its ablation $A_p^{\mathrm{ramp}}$.
 
 | folder | contents |
@@ -241,6 +248,9 @@ GaugeMLA's own code, apart from the baselines':
     $F_i$ (`_kls`), the ablation Σ = I at all five (`_klsi`), and $A_p^{\mathrm{ramp}}$ at four more (`_seeds`).
   - `kl_standin_50m/kl_full_eval/`, `grad_clip/full_eval/` and `kl_standin_ablation/kl_abl_eval/`: the full-split task
     evaluations, as the batch scripts they ran as.
+  - `regauge_test/p410m_rgkv/` (Pythia-410m), t = 0 only: the regauge test, run once per condition with `REGAUGE`.
+    [`experiments/regauge_test/README.md`](experiments/regauge_test/README.md) defines the gauges, gives the paper's
+    Tables 3 and 4, and says how to run it.
 
 For anonymity, comments and docstrings have been removed from the code, and names and absolute paths have been
 redacted from strings in `results/`. All numbers are as logged. Hashes recorded in `results/` refer to the original
