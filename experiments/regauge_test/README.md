@@ -135,6 +135,7 @@ for c in ("identity", "kvs", "kvd", "kvs_xf", "kvd_xf"):
 ```
 
 Everything is written under `MyDrive/gaugemla/regauge_test/p410m_rgkv/`. Each condition gets its own folder with its
-check, its fits and its checkpoints, and the scored rows go in `runs/`. The 42 checkpoints take about 70 GB of Drive.
+check, its fits and its checkpoints, and the scored rows go in `runs/`. The 42 checkpoints take about 70 GB, so have at
+least 75 GB free on Google Drive.
 These are the scripts the paper's numbers come from, converted to the Colab form of the other kits. The Colab form and
 the notebook have been checked structurally only and have not been run on Colab.

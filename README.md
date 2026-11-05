@@ -136,9 +136,16 @@ tokens (by gradient) left out.
 - **A Hugging Face token**, added as the Colab secret `HF_TOKEN` with notebook access.
 - **Initialisation: a High-RAM CPU runtime** (Runtime → Change runtime type → CPU, High-RAM). It uses no GPU.
 - **Training: an A100 GPU runtime with High-RAM.**
-- **Google Drive space.** A Pythia-410m checkpoint is about 1.6 GB in fp32. GaugeMLA alone builds 3 initial
-  checkpoints; the full 50M grid has 15 and the 5M grid 21 more (3 of them copies of GaugeMLA's), and each finished
-  50M branch saves one more model.
+- **Free Google Drive space for the checkpoints.** Every checkpoint is kept on Drive, about 1.6 GB each in fp32.
+  - GaugeMLA alone (`pythia410m_gaugemla.ipynb`): **at least 15 GB free.** Its 3 t = 0 checkpoints and 3 trained
+    models take about 10 GB.
+  - The full experiments (`pythia410m_init.ipynb` and the two training notebooks): **at least 90 GB free.** The 36
+    t = 0 checkpoints take about 60 GB (the 50M grid's 15, and 21 for the 5M grid, 3 of them copies of GaugeMLA's).
+    The 15 trained 50M models take about 25 GB more. The 5M training saves no model.
+  - The regauge test (`pythia410m_regauge.ipynb`): **at least 75 GB free.** Its 42 checkpoints take about 70 GB.
+
+  A quick test (`TEST_TOKENS = 50000`) saves its trained models too, under `runs/<stamp>-test50000/models/`, so delete
+  that folder once you have checked the test. GaugeMLA's 15 GB has room for its test as well.
 
 ## Run it on Colab (Pythia-410m)
 
@@ -165,7 +172,7 @@ take much longer to initialise.
 | `colab/pythia410m_train_50M.ipynb` | A100, High-RAM | 50M-token training: GaugeMLA's 3 branches in one cell, the 12 of TransMLA, MHA2MLA, CARE and $A_p^{\mathrm{ramp}}$ in the next; saves each final model |
 | `colab/pythia410m_train_5M.ipynb` | A100, High-RAM | 5M-token training: GaugeMLA's 3 branches in one cell, the other constructions' 18 (the MHA control included) in the next |
 | **The regauge test** | | |
-| `colab/pythia410m_regauge.ipynb` | CPU, High-RAM, then A100 | the regauge test, the paper's Tables 3 and 4 (about 70 GB of Drive; not yet run on Colab): see [`experiments/regauge_test/README.md`](experiments/regauge_test/README.md) |
+| `colab/pythia410m_regauge.ipynb` | CPU, High-RAM, then A100 | the regauge test, the paper's Tables 3 and 4 (at least 75 GB free on Drive; not yet run on Colab): see [`experiments/regauge_test/README.md`](experiments/regauge_test/README.md) |
 
 Each notebook mounts Google Drive, clones only the parts of the repository it uses, and starts that experiment's
 script. Everything is written under `MyDrive/gaugemla/`: `kl_standin_50m/p410m_klgc/` (GaugeMLA) and
