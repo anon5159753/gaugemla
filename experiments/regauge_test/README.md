@@ -3,10 +3,10 @@
 A regauge changes a trained model's key and value weights but not the model. Since the model has not changed, a KV
 cache compression method should give the same initialisation after any regauge. This test regauges Pythia-410m,
 converts the regauged checkpoint with each method, and measures which initialisations move. The numbers are the
-paper's Tables 3 and 4, reproduced below. This folder holds the code that produced them (`p410m_rgkv/`), and the
-release ships no data for it. A second kit, `p410m_rgkv_gqa/`, puts GQA's mean pool under the same two gauges for a
-GQA row in the paper's Figure 1; it has not been run yet, so its rows are pending (see
-[The GQA mean pool](#the-gqa-mean-pool-p410m_rgkv_gqa-results-pending) below).
+paper's Tables 3 and 4, reproduced below. This folder holds the code that produced them: `p410m_rgkv/` for the four
+MLA methods and the uncompressed rows, and `p410m_rgkv_gqa/`, which puts GQA's mean pool under the same two gauges
+for the GQA row of the paper's Figure 1 and Table 4 (see [The GQA mean pool](#the-gqa-mean-pool-p410m_rgkv_gqa)
+below). The release ships no data for either.
 
 ## The gauge
 
@@ -76,7 +76,7 @@ $$\mathrm{KL}_{\mathrm{original}} = \mathrm{KL}\left(p_O \,\|\, p_O'\right), \qq
 | Per-head scalar | 0.3374 | 5.3 × 10<sup>-9</sup> |
 | Diagonal | 0.3374 | 4.1 × 10<sup>-9</sup> |
 
-**Table 4 of the paper.** KL to the original model at conversion on Pythia-410m regauged on its keys and values by the two gauges of the paper's Appendix A.5, lower is better. Identity is the unregauged checkpoint; each gauge's column gives the change in KL against it. The row “GaugeMLA, $F_i$ carried over” takes $F_i$ from the unregauged checkpoint, so it leaves out the same tokens. Every KL here is measured with full float32 matrix products, which puts GaugeMLA's identity entries up to 0.02 below those of the same initialisations in the paper's Table 46.
+**Table 4 of the paper.** KL to the original model at conversion on Pythia-410m regauged on its keys and values by the two gauges of the paper's Appendix A.5, lower is better. Identity is the unregauged checkpoint; each gauge's column gives the change in KL against it. The row “GaugeMLA, $F_i$ carried over” takes $F_i$ from the unregauged checkpoint, so it leaves out the same tokens, and “GQA” is the mean pool of the paper's Equation (31). Every KL here is measured with full float32 matrix products, which puts GaugeMLA's identity entries up to 0.02 below those of the same initialisations in the paper's Table 46.
 
 | KV cache | Method | Identity | Per-head scalar | Diagonal |
 |---|---|---|---|---|
@@ -85,22 +85,26 @@ $$\mathrm{KL}_{\mathrm{original}} = \mathrm{KL}\left(p_O \,\|\, p_O'\right), \qq
 |  | TransMLA | 4.252 | +0.397 | +0.352 |
 |  | MHA2MLA | 4.466 | -0.111 | -0.256 |
 |  | CARE | 4.260 | +0.399 | +0.343 |
+|  | GQA | 4.587 | +1.734 | +1.734 |
 | 12.5% | GaugeMLA | 0.905 | -0.001 | +0.013 |
 |  | GaugeMLA, $F_i$ carried over | 0.905 | 0.000 | 0.000 |
 |  | TransMLA | 2.685 | +0.710 | +0.888 |
 |  | MHA2MLA | 3.628 | +0.108 | +0.138 |
 |  | CARE | 2.612 | +0.712 | +0.961 |
+|  | GQA | 4.452 | +1.137 | +1.137 |
 | 25% | GaugeMLA | 0.158 | +0.001 | +0.003 |
 |  | GaugeMLA, $F_i$ carried over | 0.158 | 0.000 | 0.000 |
 |  | TransMLA | 0.822 | +0.116 | +0.284 |
 |  | MHA2MLA | 2.556 | +0.286 | +0.343 |
 |  | CARE | 0.776 | +0.135 | +0.319 |
+|  | GQA | 4.642 | +0.466 | +0.466 |
 
 The regauged checkpoints are the same model as the original (Table 3). TransMLA and CARE get worse under both gauges
 at every budget. MHA2MLA gets worse at 12.5% and 25% and better at 6.25%, so a regauge can improve a heuristic
 initialisation as well as worsen it, and nothing in the method says which. GaugeMLA's objective is gauge invariant,
 and GaugeMLA moves little. Measured afresh, its $F_i$ leaves out tokens chosen by a gradient that the regauge
-rescales. With $F_i$ carried over, so that it leaves out the same tokens, it does not move.
+rescales. With $F_i$ carried over, so that it leaves out the same tokens, it does not move. GQA's mean pool gets
+worse under both gauges at every budget, and by the same amount under each, as predicted below.
 
 ## The code (`p410m_rgkv/`)
 
@@ -118,12 +122,13 @@ rescales. With $F_i$ carried over, so that it leaves out the same tokens, it doe
   Pythia-410m's geometry. It needs no model and no torch:
   `python experiments/regauge_test/p410m_rgkv/plan.py`.
 
-## The GQA mean pool (`p410m_rgkv_gqa/`, results pending)
+## The GQA mean pool (`p410m_rgkv_gqa/`)
 
 The test above converts the regauged checkpoint with the four MLA methods. `p410m_rgkv_gqa/` adds GQA's own
 construction, the mean pool (the arm `pool`: $W_{K_i}$, $b_{K_i}$, $W_{V_i}$ and $b_{V_i}$ averaged over each group
-of $H / G$ consecutive heads, queries and $W_{O_i}$ kept), for a GQA row in the paper's Figure 1. It uses the same
-two gauges, `kvs` and `kvd`, unchanged (the same `GAUGES` table), with `identity` as the control, and the same gate.
+of $H / G$ consecutive heads, queries and $W_{O_i}$ kept), for the GQA row of the paper's Figure 1 and Table 4. It
+uses the same two gauges, `kvs` and `kvd`, unchanged (the same `GAUGES` table), with `identity` as the control, and
+the same gate.
 
 - **Nine cells, t = 0 only.** Three conditions (`identity`, `kvs`, `kvd`), one process each, times three budgets:
   $B = 512, 256, 128$, that is $G = 4, 2, 1$ groups, 25%, 12.5% and 6.25% of the KV cache. Each cell is scored
@@ -138,9 +143,11 @@ two gauges, `kvs` and `kvd`, unchanged (the same `GAUGES` table), with `identity
   passed.
 - **Predicted, reported, never gated:** `kvs` and `kvd` give the same pool. Both are $c_i D$ with $D$ the same in
   every head and commuting with the rotations, and $D$ cancels on both sides of the pooled scores and outputs, so the
-  two conditions' rows should agree to float32 rounding.
-- **Results pending.** This kit has not been run, so the release and the paper carry no numbers for it. The paper's
-  Tables 3 and 4 above are `p410m_rgkv`'s only; the GQA row of Figure 1 will come from this kit.
+  two conditions' rows should agree to float32 rounding. They do: Table 4's two gauge columns are equal for GQA at
+  every budget.
+- **Results.** The nine rows are the GQA line of Table 4 above (the identity's KL to the original model and each
+  gauge's change against it) and the GQA row of the paper's Figure 1. As for `p410m_rgkv`, the release ships the code
+  and no data.
 
 Its files follow `p410m_rgkv/`'s: `regauge_gauges.py` (the same gauges and gate, plus the identity check; the
 full-cache and $F_i$-transfer code is removed), `p410m_rgkv_gqa_init.py` and `p410m_rgkv_gqa_run.py` (from the same
@@ -175,4 +182,5 @@ The GQA kit runs the same way from
 [`colab/pythia410m_regauge_gqa.ipynb`](../../colab/pythia410m_regauge_gqa.ipynb), with `p410m_rgkv_gqa` in place of
 `p410m_rgkv` and the three conditions `("identity", "kvs", "kvd")`, `identity` first (its run writes the identity
 check that `kvs` and `kvd` require). It writes under `MyDrive/gaugemla/regauge_test/p410m_rgkv_gqa/`; its 9
-checkpoints take about 15 GB, so have at least 20 GB free. It has not been run anywhere yet.
+checkpoints take about 15 GB, so have at least 20 GB free. As with `p410m_rgkv`, its Colab form and notebook have been
+checked structurally only and have not been run on Colab.
