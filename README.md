@@ -50,8 +50,9 @@ $x_m W_{Q_i}^\top R_\delta W_{K_i} x_n^\top$ with $\delta = n - m$, so the key g
 $\Omega_i R_\delta = R_\delta \Omega_i$; decoupling the rotary key, as MLA does, leaves the rest of the key's gauge free.
 
 [`experiments/regauge_test/`](experiments/regauge_test/) applies two such gauges to Pythia-410m and converts the
-regauged checkpoint with each method (Figure 1). Its README defines the gauges and gives the paper's Tables 3 and 4: the
-baselines' initialisations get better or worse with the gauge, while GaugeMLA's barely moves.
+regauged checkpoint with each of the four MLA methods (Figure 1) and with GQA's mean pool. Its README defines the
+gauges and gives the paper's Tables 3 and 4: the baselines' initialisations get better or worse with the gauge, while
+GaugeMLA's barely moves. The GQA kit (`p410m_rgkv_gqa`) has not been run yet, so its rows are pending.
 
 ![Figure 2: A single attention layer for MHA, GQA, and Gauged GQA](docs/figure2.png)
 
@@ -150,6 +151,8 @@ tokens (by gradient) left out.
     t = 0 checkpoints take about 60 GB (the 50M grid's 15, and 21 for the 5M grid, 3 of them copies of GaugeMLA's).
     The 15 trained 50M models take about 25 GB more. The 5M training saves no model.
   - The regauge test (`pythia410m_regauge.ipynb`): **at least 75 GB free.** Its 42 checkpoints take about 70 GB.
+  - The regauge test's GQA kit (`pythia410m_regauge_gqa.ipynb`): **at least 20 GB free.** Its 9 checkpoints take
+    about 15 GB.
 
   A quick test (`TEST_TOKENS = 50000`) saves its trained models too, under `runs/<stamp>-test50000/models/`, so delete
   that folder once you have checked the test. GaugeMLA's 15 GB has room for its test as well.
@@ -166,7 +169,8 @@ is built and trained with the baselines.
 
 **To run GaugeMLA, use `colab/pythia410m_gaugemla.ipynb` only.** It builds GaugeMLA's three t = 0 checkpoints and
 trains them, and nothing else. The init and two training notebooks are for the complete experiments, GaugeMLA beside
-every method it is compared with, and `pythia410m_regauge.ipynb` runs the regauge test. The complete experiments
+every method it is compared with, and `pythia410m_regauge.ipynb` runs the regauge test (`pythia410m_regauge_gqa.ipynb`
+its GQA mean-pool rows, which are pending). The complete experiments
 build every method's checkpoints (15 for the 50M grid and 21 more for the 5M grid, against GaugeMLA's 3), so they
 take much longer to initialise.
 
@@ -180,6 +184,7 @@ take much longer to initialise.
 | `colab/pythia410m_train_5M.ipynb` | A100, High-RAM | 5M-token training: GaugeMLA's 3 branches in one cell, the other constructions' 18 (the MHA control included) in the next |
 | **The regauge test** | | |
 | `colab/pythia410m_regauge.ipynb` | CPU, High-RAM, then A100 | the regauge test, the paper's Tables 3 and 4 (at least 75 GB free on Drive; not yet run on Colab): see [`experiments/regauge_test/README.md`](experiments/regauge_test/README.md) |
+| `colab/pythia410m_regauge_gqa.ipynb` | CPU, High-RAM, then A100 | the regauge test's GQA row: the mean pool (`pool`) under the same two gauges, 9 cells at t = 0 (at least 20 GB free on Drive; not yet run, results pending): see the same README |
 
 Each notebook mounts Google Drive, clones only the parts of the repository it uses, and starts that experiment's
 script. Everything is written under `MyDrive/gaugemla/`: `kl_standin_50m/p410m_klgc/` (GaugeMLA) and
@@ -268,6 +273,9 @@ GaugeMLA's own code, apart from the baselines':
   - `regauge_test/p410m_rgkv/` (Pythia-410m), t = 0 only: the regauge test, run once per condition with `REGAUGE`.
     [`experiments/regauge_test/README.md`](experiments/regauge_test/README.md) defines the gauges, gives the paper's
     Tables 3 and 4, and says how to run it.
+  - `regauge_test/p410m_rgkv_gqa/` (Pythia-410m), t = 0 only: GQA's mean pool under the same two gauges, three
+    conditions by three budgets, with an identity check before the regauged conditions are measured. Not yet run;
+    its rows are pending.
 
 For anonymity, comments and docstrings have been removed from the code, and names and absolute paths have been
 redacted from strings in `results/`. All numbers are as logged. Hashes recorded in `results/` refer to the original

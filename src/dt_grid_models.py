@@ -1966,6 +1966,25 @@ MODELS = {
         t0_only=True,
         regauge=("identity", "kvs", "kvd", "kvs_xf", "kvd_xf"),
     ),
+    "p410m_rgkv_gqa": dict(
+        base="p410m",
+        hf_id="EleutherAI/pythia-410m", revision="9879c9b5f8bea9051dcb0e68dff21493d67e9d4f",
+        family="neox", model_type="gpt_neox", role="trained",
+        L=24, dm=1024, H=16, Hkv=16, d_k=64, r=16, rope_base=10000, max_ctx=2048, vocab=50304,
+        qkv_bias=True, o_bias=True, norm_kind="ln_affine", tie_word_embeddings=False,
+        tokenizer_oid="f74dfbfab8f97770a87769c739fb080c21c8bacc",
+        teacher=dict(hf_id="EleutherAI/pythia-2.8b", revision="2a259cdd96a4beb1cdf467512e3904197345f6a9",
+                     dtype="float32", vocab=50304, tokenizer_oid="f74dfbfab8f97770a87769c739fb080c21c8bacc"),
+        kl_width_rule="argmin", init_layout="B",
+        train_plan=TRAIN_PLAN_MLA50,
+        init_budgets=INIT_BUDGETS_TRAINED,
+        partial_unrope=True,
+        arms_only=("pool",),
+        fisher_labels="model",
+        fisher_exclude_top=0.01,
+        t0_only=True,
+        regauge=("identity", "kvs", "kvd"),
+    ),
     "l2_13b": dict(
         hf_id="meta-llama/Llama-2-13b-hf", revision="5c31dfb671ce7cfe2d7bb7c04375e44c55e815b1", gated=True,
         family="llama_layout", model_type="llama", role="retired",
@@ -2006,7 +2025,8 @@ ORDER = ("p410m", "slm1p6b", "tl1b", "sm360m", "mn4b", "olmo1b", "q0p5b", "l3_1b
          "q0p5b_tx1_klsi", "l3_1b_tx1_klsi",
          "p410m_kl5m",
          "p410m_rg",
-         "p410m_rgkv")
+         "p410m_rgkv",
+         "p410m_rgkv_gqa")
 
 CONSTANTS = dict(long=LONG, short=SHORT, control=CONTROL, pending=PENDING_ARMS, retired=RETIRED_ARMS,
                  compare=COMPARE, klw=KLW, dec_fixed=DEC_FIXED, w_compare=COMPARE_W, fixed_w=FIXED_W,

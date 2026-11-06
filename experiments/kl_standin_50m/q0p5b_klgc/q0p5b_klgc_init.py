@@ -79,7 +79,7 @@ MODULE_MANIFEST = {'src/dt_arch_llama.py': '51d567d483b254779344b86d642d2c503df8
  'src/dt_feasibility_arms.py': '2a22c2b174a5c0943950975acc5a73cc0cf2d49c',
  'src/dt_feasibility_train.py': '4c54fec049c8f7dccddf1131115ad8cde3ac2bdc',
  'src/dt_gqa_arch.py': '2dfeaef57063f9838ce3b7e87c2f4fa73401017d',
- 'src/dt_grid_models.py': '3d35e2cb7031b8dbec66b8288a503f01c0cb5a9e',
+ 'src/dt_grid_models.py': '6f5902d3b25c73ac5cfddb4ede687a883cdd73dd',
  'src/dt_groupsearch.py': '2119e0a8a588b68bfbcb88cad95759a27d95a3a7',
  'src/dt_logs.py': 'ebeabd8a5cf762a54547e54bd46a8c10d899c7de',
  'src/dt_mla_arch.py': 'de2fe52f01729e5f77a56d7e53bf464fdd847446',

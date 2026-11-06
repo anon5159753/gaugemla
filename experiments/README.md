@@ -13,9 +13,11 @@ it only measures the checkpoints). `colab/launch.py` runs either one.
 
 The other experiments are here as code: `grad_clip_5m/` and `kl_standin_5m/` (Pythia-410m, 5M tokens),
 `true_fisher_x1_seeds/` and `kl_standin_ablation/` (the t = 0 seed study and the Σ = I ablation), `regauge_test/`
-(MHA2MLA, TransMLA, CARE and GaugeMLA built from a regauged Pythia-410m; its own
+(MHA2MLA, TransMLA, CARE and GaugeMLA built from a regauged Pythia-410m in `p410m_rgkv/`, and GQA's mean pool from
+the same regauged checkpoints in `p410m_rgkv_gqa/`, which has not been run yet; its own
 [README](regauge_test/README.md) defines the gauges and gives the paper's tables), and the evaluation scripts
-`grad_clip/full_eval/` and `kl_standin_ablation/kl_abl_eval/`. The paper reports their results.
+`grad_clip/full_eval/` and `kl_standin_ablation/kl_abl_eval/`. The paper reports their results, except the GQA
+regauge rows, which are pending.
 
 ## Names
 
