@@ -175,8 +175,7 @@ for c in ("identity", "kvs", "kvd", "kvs_xf", "kvd_xf"):
 Everything is written under `MyDrive/gaugemla/regauge_test/p410m_rgkv/`. Each condition gets its own folder with its
 check, its fits and its checkpoints, and the scored rows go in `runs/`. The 42 checkpoints take about 70 GB, so have at
 least 75 GB free on Google Drive.
-These are the scripts the paper's numbers come from, converted to the Colab form of the other kits. The Colab form and
-the notebook have been checked structurally only and have not been run on Colab.
+These are the scripts the paper's numbers come from, converted to the Colab form of the other kits.
 
 The GQA kit runs the same two steps from
 [`colab/pythia410m_regauge_gqa.ipynb`](../../colab/pythia410m_regauge_gqa.ipynb), with `p410m_rgkv_gqa` in place of
@@ -186,5 +185,3 @@ from the regauged weights, so the init is the gate and three builds per conditio
 condition; no GPU is used) and the scoring step follows on the same runtime. The scoring stops with a message naming
 the build step if a condition's checkpoints are not on Drive. It writes under
 `MyDrive/gaugemla/regauge_test/p410m_rgkv_gqa/`; its 9 checkpoints take about 15 GB, so have at least 20 GB free.
-As with `p410m_rgkv`, its Colab form and notebook have been checked structurally only and have not been run through
-on Colab.
