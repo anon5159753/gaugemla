@@ -57,10 +57,10 @@ the task battery, scoring and logging.
 | modules | what they build |
 |---|---|
 | `dt_mla_w16_ours_unrope_cost_kl` | GaugeMLA at w = 16: the grouped-query models' initialisation imports it in place of the w = 64 arm. |
-| `dt_mla_w64_ours_unrope_cost`, `dt_mla_w16_ours_unrope_cost` | $A_p^{\mathrm{ramp}}$, the un-roping ablation: GaugeMLA with each un-roped plane read out by its mean rotation over the offsets (the earlier GaugeMLA). |
+| `dt_mla_w64_ours_unrope_cost`, `dt_mla_w16_ours_unrope_cost` | $A_p^{\mathrm{mean}}$, the un-roping ablation: GaugeMLA with each un-roped plane read out by its mean rotation over the offsets (the earlier GaugeMLA). |
 | `dt_mla_w64_ours_unrope_cost_klsi`, `dt_mla_w16_ours_unrope_cost_klsi` | The ablation Σ = I: GaugeMLA with the input metric set to the identity. |
 | `dt_mla_w64_transmla`, `dt_mla_w64_mha2mla`, `dt_mla_w64_care`, `dt_mla_w16_transmla`, `dt_mla_w16_mha2mla`, `dt_mla_mha2mla`, `dt_mla_care` | The baselines: TransMLA, MHA2MLA and CARE at w = 64 (and the first two at w = 16). |
 | `dt_mla_fit_llama` | Σ, the Fisher and MHA2MLA's statistics on LLaMA-family models. |
 | `gam_record` | Records the gauges of the "GQA + optimal gauge" construction. |
-| `dt_mla_ours_unrope_cost` | $A_p^{\mathrm{ramp}}$ at the KL width: in the 5M kit's registry, but neither built by the notebooks nor reported in the paper. |
+| `dt_mla_ours_unrope_cost` | $A_p^{\mathrm{mean}}$ at the KL width: in the 5M kit's registry, but neither built by the notebooks nor reported in the paper. |
 | `dt_mla_w64_ours_unrope_cost_fi`, `dt_mla_w64_ours_unrope_cost_si`, `dt_mla_w64_ours_unrope_cost_ii`, `dt_mla_w16_ours_unrope_cost_fi`, `dt_mla_w16_ours_unrope_cost_si`, `dt_mla_w16_ours_unrope_cost_ii`, `dt_mla_ours_unrope_energy`, `dt_mla_w64_ours_unrope_energy`, `dt_mla_w16_ours_unrope_energy`, `dt_mla_w64_ours_unrope_tmcopy`, `dt_mla_w64_ours_unrope_tmcopy_fi`, `dt_mla_w64_ours_unrope_tmdamped`, `dt_mla_ours_eig`, `dt_mla_w64_ours` | Registered variants of the earlier GaugeMLA that none of this repository's experiments runs. |

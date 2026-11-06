@@ -1,15 +1,15 @@
 # results: the 50M training runs and GaugeMLA's task evaluation
 
 **Only `kl_standin_50m/` is GaugeMLA, our method.** The `mla_w{64,16}_ours_unrope_cost` runs in `<model>_gc/` are
-GaugeMLA without the KL stand-in: the ablation $A_p^{\mathrm{ramp}}$, the earlier version of the method.
+GaugeMLA without the KL stand-in: the ablation $A_p^{\mathrm{mean}}$, the earlier version of the method.
 
 | folder | what it is |
 |---|---|
 | `kl_standin_50m/<model>/` | **GaugeMLA, the method of the paper**: arm `mla_w64_ours_unrope_cost_kl` on the multi-head models and `mla_w16_ours_unrope_cost_kl` on the grouped-query ones, trained for 50M tokens at 25, 12.5 and 6.25% of the KV cache. |
 | `kl_standin_eval/<model>/` | GaugeMLA's t = 0 initialisations and saved 50M models, and the original model, scored on the full splits of the ten tasks. |
-| `<model>_gc/` | The methods it is compared with, trained the same way: TransMLA, MHA2MLA, CARE (multi-head models only), and **$A_p^{\mathrm{ramp}}$, GaugeMLA's un-roping ablation** (arm `mla_w{64,16}_ours_unrope_cost`). |
+| `<model>_gc/` | The methods it is compared with, trained the same way: TransMLA, MHA2MLA, CARE (multi-head models only), and **$A_p^{\mathrm{mean}}$, GaugeMLA's un-roping ablation** (arm `mla_w{64,16}_ours_unrope_cost`). |
 
-## GaugeMLA and $A_p^{\mathrm{ramp}}$
+## GaugeMLA and $A_p^{\mathrm{mean}}$
 
 Both un-rope the rotary planes that do not fit in the rotary width. They differ only in what replaces each plane's
 rotation:
@@ -17,14 +17,14 @@ rotation:
 - **GaugeMLA** (`kl_standin_50m/`, the `_kl` in the arm name) uses the KL stand-in
   $A^{\mathrm{KL}}_{ip} = (F^{aa}_{ip})^{-1} F^{ab}_{ip}$, the fixed map that minimises an approximation of the KL
   objective for plane $p$ of head $i$.
-- **$A_p^{\mathrm{ramp}}$** (`<model>_gc/`, arm `mla_w{64,16}_ours_unrope_cost`) uses the plane's average rotation over
+- **$A_p^{\mathrm{mean}}$** (`<model>_gc/`, arm `mla_w{64,16}_ours_unrope_cost`) uses the plane's average rotation over
   the causal offsets, counting every query–key pair equally. It is the earlier version of GaugeMLA, now an ablation,
   and not the method of the paper.
 
 Every run in both folders was trained the same way:
 - 50M tokens of knowledge distillation toward the same teacher, with the gradient clipped at 1.0;
 - the same evaluation documents and training stream;
-- GaugeMLA and $A_p^{\mathrm{ramp}}$ initialised from the same $F_i$ and $\Sigma$ (Fisher label seed 20261014).
+- GaugeMLA and $A_p^{\mathrm{mean}}$ initialised from the same $F_i$ and $\Sigma$ (Fisher label seed 20261014).
 
 ## Files
 
@@ -47,35 +47,35 @@ Every run in both folders was trained the same way:
 | model | method | 6.25%, t = 0 | 6.25%, 50M | 12.5%, t = 0 | 12.5%, 50M | 25%, t = 0 | 25%, 50M |
 |---|---|---|---|---|---|---|---|
 | Pythia-410m | GaugeMLA | **3.384** | **0.662** | **1.236** | **0.461** | **0.500** | **0.379** |
-|  | $A_p^{\mathrm{ramp}}$ (ablation) | 3.421 | 0.669 | 1.371 | 0.464 | 0.621 | 0.379 |
+|  | $A_p^{\mathrm{mean}}$ (ablation) | 3.421 | 0.669 | 1.371 | 0.464 | 0.621 | 0.379 |
 |  | TransMLA | 4.561 | 0.681 | 2.990 | 0.481 | 1.134 | 0.395 |
 |  | MHA2MLA | 4.768 | 0.774 | 3.930 | 0.541 | 2.862 | 0.431 |
 |  | CARE | 4.567 | 0.681 | 2.919 | 0.482 | 1.090 | 0.412 |
 | StableLM-2-1.6B | GaugeMLA | **2.099** | **0.534** | **0.856** | **0.432** | **0.449** | **0.376** |
-|  | $A_p^{\mathrm{ramp}}$ (ablation) | 2.117 | 0.537 | 0.912 | 0.434 | 0.534 | 0.379 |
+|  | $A_p^{\mathrm{mean}}$ (ablation) | 2.117 | 0.537 | 0.912 | 0.434 | 0.534 | 0.379 |
 |  | TransMLA | 2.976 | 0.541 | 0.975 | 0.441 | 0.497 | 0.383 |
 |  | MHA2MLA | 7.901 | 0.698 | 4.534 | 0.561 | 3.857 | 0.480 |
 |  | CARE | 2.913 | 0.542 | 0.976 | 0.442 | 0.497 | 0.384 |
 | Qwen1.5-0.5B | GaugeMLA | **3.919** | **0.746** | **1.515** | **0.540** | **0.693** | **0.463** |
-|  | $A_p^{\mathrm{ramp}}$ (ablation) | 4.037 | 0.755 | 1.697 | 0.545 | 0.877 | 0.469 |
+|  | $A_p^{\mathrm{mean}}$ (ablation) | 4.037 | 0.755 | 1.697 | 0.545 | 0.877 | 0.469 |
 |  | TransMLA | 5.222 | 0.765 | 4.766 | 0.565 | 2.442 | 0.482 |
 |  | MHA2MLA | 6.512 | 1.097 | 4.888 | 0.829 | 3.977 | 0.688 |
 |  | CARE | 5.247 | 0.766 | 4.686 | 0.566 | 2.424 | 0.482 |
 | OLMo-1B | GaugeMLA | **2.651** | **0.463** | **1.160** | **0.388** | **0.651** | **0.348** |
-|  | $A_p^{\mathrm{ramp}}$ (ablation) | 3.091 | 0.469 | 2.304 | 0.397 | 2.142 | 0.358 |
+|  | $A_p^{\mathrm{mean}}$ (ablation) | 3.091 | 0.469 | 2.304 | 0.397 | 2.142 | 0.358 |
 |  | TransMLA | 5.011 | 0.484 | 4.173 | 0.408 | 3.329 | 0.380 |
 |  | MHA2MLA | 7.210 | 0.581 | 7.762 | 0.487 | 4.762 | 0.439 |
 |  | CARE | 5.043 | 0.486 | 4.058 | 0.409 | 3.314 | 0.387 |
 | SmolLM-360M | GaugeMLA | **3.989** | **1.305** | **2.802** | **0.763** | **1.686** | **0.544** |
-|  | $A_p^{\mathrm{ramp}}$ (ablation) | 4.279 | 1.328 | 3.235 | 0.798 | 2.457 | 0.580 |
+|  | $A_p^{\mathrm{mean}}$ (ablation) | 4.279 | 1.328 | 3.235 | 0.798 | 2.457 | 0.580 |
 |  | TransMLA | 4.319 | 1.696 | 3.954 | 1.034 | 3.605 | 0.744 |
 |  | MHA2MLA | 7.819 | 2.312 | 10.701 | 1.763 | 10.772 | 1.262 |
 | TinyLlama-1.1B | GaugeMLA | **4.401** | **0.859** | **3.576** | **0.523** | **2.931** | **0.371** |
-|  | $A_p^{\mathrm{ramp}}$ (ablation) | 4.237 | 0.860 | 3.701 | 0.528 | 3.318 | 0.379 |
+|  | $A_p^{\mathrm{mean}}$ (ablation) | 4.237 | 0.860 | 3.701 | 0.528 | 3.318 | 0.379 |
 |  | TransMLA | 4.898 | 1.022 | 4.299 | 0.620 | 4.172 | 0.452 |
 |  | MHA2MLA | 9.657 | 1.634 | 9.897 | 1.186 | 8.887 | 0.838 |
 | Llama-3.2-1B | GaugeMLA | **5.837** | **0.789** | **3.678** | **0.590** | **2.180** | **0.479** |
-|  | $A_p^{\mathrm{ramp}}$ (ablation) | 5.711 | 0.802 | 4.833 | 0.601 | 3.974 | 0.491 |
+|  | $A_p^{\mathrm{mean}}$ (ablation) | 5.711 | 0.802 | 4.833 | 0.601 | 3.974 | 0.491 |
 |  | TransMLA | 5.840 | 1.010 | 5.279 | 0.773 | 5.023 | 0.640 |
 |  | MHA2MLA | 7.533 | 1.381 | 6.560 | 1.086 | 5.328 | 0.864 |
 
@@ -86,36 +86,36 @@ Every run in both folders was trained the same way:
 | model | method | 6.25%, t = 0 | 6.25%, 50M | 12.5%, t = 0 | 12.5%, 50M | 25%, t = 0 | 25%, 50M |
 |---|---|---|---|---|---|---|---|
 | Pythia-410m | GaugeMLA | **3.083** | **0.367** | **0.927** | **0.168** | **0.177** | **0.086** |
-|  | $A_p^{\mathrm{ramp}}$ (ablation) | 3.119 | 0.375 | 1.065 | 0.170 | 0.302 | 0.087 |
+|  | $A_p^{\mathrm{mean}}$ (ablation) | 3.119 | 0.375 | 1.065 | 0.170 | 0.302 | 0.087 |
 |  | TransMLA | 4.253 | 0.387 | 2.684 | 0.185 | 0.823 | 0.101 |
 |  | MHA2MLA | 4.465 | 0.481 | 3.626 | 0.247 | 2.556 | 0.140 |
 |  | CARE | 4.259 | 0.387 | 2.613 | 0.185 | 0.778 | 0.118 |
 | StableLM-2-1.6B | GaugeMLA | **1.797** | **0.241** | **0.540** | **0.139** | **0.119** | **0.081** |
-|  | $A_p^{\mathrm{ramp}}$ (ablation) | 1.815 | 0.245 | 0.598 | 0.141 | 0.208 | 0.083 |
+|  | $A_p^{\mathrm{mean}}$ (ablation) | 1.815 | 0.245 | 0.598 | 0.141 | 0.208 | 0.083 |
 |  | TransMLA | 2.680 | 0.250 | 0.660 | 0.146 | 0.167 | 0.088 |
 |  | MHA2MLA | 7.601 | 0.408 | 4.237 | 0.270 | 3.556 | 0.185 |
 |  | CARE | 2.616 | 0.251 | 0.662 | 0.147 | 0.168 | 0.088 |
 | Qwen1.5-0.5B | GaugeMLA | **3.501** | **0.399** | **1.075** | **0.198** | **0.224** | **0.123** |
-|  | $A_p^{\mathrm{ramp}}$ (ablation) | 3.618 | 0.408 | 1.264 | 0.203 | 0.420 | 0.129 |
+|  | $A_p^{\mathrm{mean}}$ (ablation) | 3.618 | 0.408 | 1.264 | 0.203 | 0.420 | 0.129 |
 |  | TransMLA | 4.812 | 0.417 | 4.354 | 0.220 | 2.012 | 0.141 |
 |  | MHA2MLA | 6.094 | 0.741 | 4.468 | 0.480 | 3.556 | 0.341 |
 |  | CARE | 4.836 | 0.418 | 4.273 | 0.221 | 1.994 | 0.141 |
 | OLMo-1B | GaugeMLA | **2.418** | **0.282** | **0.909** | **0.208** | **0.378** | **0.168** |
-|  | $A_p^{\mathrm{ramp}}$ (ablation) | 2.861 | 0.289 | 2.071 | 0.215 | 1.903 | 0.175 |
+|  | $A_p^{\mathrm{mean}}$ (ablation) | 2.861 | 0.289 | 2.071 | 0.215 | 1.903 | 0.175 |
 |  | TransMLA | 4.785 | 0.301 | 3.946 | 0.224 | 3.098 | 0.194 |
 |  | MHA2MLA | 6.985 | 0.394 | 7.541 | 0.301 | 4.536 | 0.252 |
 |  | CARE | 4.817 | 0.303 | 3.831 | 0.224 | 3.083 | 0.201 |
 | SmolLM-360M | GaugeMLA | **3.598** | **0.944** | **2.405** | **0.397** | **1.282** | **0.175** |
-|  | $A_p^{\mathrm{ramp}}$ (ablation) | 3.887 | 0.966 | 2.841 | 0.433 | 2.060 | 0.210 |
+|  | $A_p^{\mathrm{mean}}$ (ablation) | 3.887 | 0.966 | 2.841 | 0.433 | 2.060 | 0.210 |
 |  | TransMLA | 3.928 | 1.338 | 3.564 | 0.671 | 3.211 | 0.379 |
 |  | MHA2MLA | 7.438 | 1.949 | 10.301 | 1.395 | 10.375 | 0.895 |
 | TinyLlama-1.1B | GaugeMLA | **4.166** | **0.674** | **3.343** | **0.339** | **2.696** | **0.189** |
-|  | $A_p^{\mathrm{ramp}}$ (ablation) | 4.001 | 0.674 | 3.464 | 0.345 | 3.080 | 0.199 |
+|  | $A_p^{\mathrm{mean}}$ (ablation) | 4.001 | 0.674 | 3.464 | 0.345 | 3.080 | 0.199 |
 |  | TransMLA | 4.664 | 0.834 | 4.061 | 0.436 | 3.935 | 0.269 |
 |  | MHA2MLA | 9.421 | 1.441 | 9.665 | 0.996 | 8.646 | 0.648 |
 | Llama-3.2-1B | GaugeMLA | **5.484** | **0.481** | **3.323** | **0.285** | **1.824** | **0.176** |
-|  | $A_p^{\mathrm{ramp}}$ (ablation) | 5.359 | 0.493 | 4.483 | 0.295 | 3.623 | 0.190 |
+|  | $A_p^{\mathrm{mean}}$ (ablation) | 5.359 | 0.493 | 4.483 | 0.295 | 3.623 | 0.190 |
 |  | TransMLA | 5.487 | 0.694 | 4.925 | 0.461 | 4.673 | 0.330 |
 |  | MHA2MLA | 7.175 | 1.061 | 6.207 | 0.767 | 4.972 | 0.551 |
 
-GaugeMLA is our method; $A_p^{\mathrm{ramp}}$ is its un-roping ablation (the earlier GaugeMLA, which un-ropes by the mean rotation over the offsets), shown beside it and left out of the bolding. Bold is the lowest of GaugeMLA, TransMLA, MHA2MLA and CARE for that model, budget, time and KL. At t = 0, GaugeMLA and $A_p^{\mathrm{ramp}}$ are the initialisation each run trained from; the paper reports the mean over five draws of $F_i$. CARE is not performed for the grouped-query models.
+GaugeMLA is our method; $A_p^{\mathrm{mean}}$ is its un-roping ablation (the earlier GaugeMLA, which un-ropes by the mean rotation over the offsets), shown beside it and left out of the bolding. Bold is the lowest of GaugeMLA, TransMLA, MHA2MLA and CARE for that model, budget, time and KL. At t = 0, GaugeMLA and $A_p^{\mathrm{mean}}$ are the initialisation each run trained from; the paper reports the mean over five draws of $F_i$. CARE is not performed for the grouped-query models.

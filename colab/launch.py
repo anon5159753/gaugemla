@@ -51,8 +51,8 @@ FOLDER = {
 NAMES = {
     "mla_w64_ours_unrope_cost_kl": "GaugeMLA",
     "mla_w16_ours_unrope_cost_kl": "GaugeMLA",
-    "mla_w64_ours_unrope_cost": "A_p^ramp (un-roping ablation)",
-    "mla_w16_ours_unrope_cost": "A_p^ramp (un-roping ablation)",
+    "mla_w64_ours_unrope_cost": "A_p^mean (un-roping ablation)",
+    "mla_w16_ours_unrope_cost": "A_p^mean (un-roping ablation)",
     "mla_w64_ours_unrope_cost_klsi": "GaugeMLA, Σ = I",
     "mla_w16_ours_unrope_cost_klsi": "GaugeMLA, Σ = I",
     "mla_w64_transmla_sigma": "TransMLA",
@@ -176,7 +176,7 @@ def kl_table(tag, test_tokens=0):
         _table(f"FROM THE PAPER, not run in this session (results/{RESULTS[tag]}"
                + (", the methods this run trained" if arms else "") + f"): {what}", ref, cache, key)
     print("\nt = 0 is the initialisation each branch trains from (Fisher label seed 20261014). The paper's tables "
-          "print GaugeMLA's and A_p^ramp's t = 0 as the mean over five draws of the Fisher's labels (five label "
+          "print GaugeMLA's and A_p^mean's t = 0 as the mean over five draws of the Fisher's labels (five label "
           "seeds, this one the first); the other methods' t = 0 and every 50M value are these runs' own.")
     if test_tokens and mine:
         print(f"This was a test run of {test_tokens:,} training tokens: its t = 0 should be close to the paper's t = 0 "

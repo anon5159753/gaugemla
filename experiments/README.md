@@ -6,7 +6,7 @@ it only measures the checkpoints). `colab/launch.py` runs either one.
 
 `results/` holds the logged 50M training runs and GaugeMLA's full-split evaluation:
 
-- `grad_clip/<model>_gc/` → `results/<model>_gc/`: TransMLA, MHA2MLA, CARE and $A_p^{\mathrm{ramp}}$.
+- `grad_clip/<model>_gc/` → `results/<model>_gc/`: TransMLA, MHA2MLA, CARE and $A_p^{\mathrm{mean}}$.
 - `kl_standin_50m/<model>_klgc/` → `results/kl_standin_50m/<model>/`: GaugeMLA.
 - `kl_standin_50m/kl_full_eval/` → `results/kl_standin_eval/<model>/`: GaugeMLA's t = 0 initialisations and saved
   50M models scored on the full task splits.
@@ -27,7 +27,7 @@ The other experiments are here as code: `grad_clip_5m/` and `kl_standin_5m/` (Py
 - GaugeMLA's KL objective has two measured factors: the output metric F_i, fitted as the true Fisher with each fit
   document's top 1% of tokens (by gradient) left out, and the input metric Σ, measured on the calibration documents.
 - `FISHER_LABEL_SEED` picks the draw of the next tokens the Fisher is fitted on. Every 50M run trains from the draw at
-  20261014; `true_fisher_x1_seeds/` ($A_p^{\mathrm{ramp}}$) and the `_kls` kits (GaugeMLA) take 20262014–20265014, and
+  20261014; `true_fisher_x1_seeds/` ($A_p^{\mathrm{mean}}$) and the `_kls` kits (GaugeMLA) take 20262014–20265014, and
   the `_klsi` kits all five.
 
 ## Arms
@@ -35,7 +35,7 @@ The other experiments are here as code: `grad_clip_5m/` and `kl_standin_5m/` (Py
 | arm | name in the paper | what it is | used in |
 |---|---|---|---|
 | `mla_w64_ours_unrope_cost_kl`, `mla_w16_ours_unrope_cost_kl` | **GaugeMLA (our method)** | MLA initialised under the KL objective, with the rotary key cached after RoPE as in MLA. The rotary planes that do not fit are un-roped, each read out by its head's KL stand-in $A^{\mathrm{KL}} = (F^{aa})^{-1} F^{ab}$, and the un-roped rows enter the latent weighted by $F^{aa}$. | `kl_standin_50m/`, `kl_standin_5m/`, `kl_standin_ablation/` (`_kls`) |
-| `mla_w64_ours_unrope_cost`, `mla_w16_ours_unrope_cost` | $A_p^{\mathrm{ramp}}$ (ablation) | GaugeMLA with each un-roped plane read out by its mean rotation over the causal offsets instead (the earlier GaugeMLA). | `grad_clip/`, `true_fisher_x1_seeds/` |
+| `mla_w64_ours_unrope_cost`, `mla_w16_ours_unrope_cost` | $A_p^{\mathrm{mean}}$ (ablation) | GaugeMLA with each un-roped plane read out by its mean rotation over the causal offsets instead (the earlier GaugeMLA). | `grad_clip/`, `true_fisher_x1_seeds/` |
 | `mla_w64_ours_unrope_cost_klsi`, `mla_w16_ours_unrope_cost_klsi` | Σ = I (ablation) | GaugeMLA with the input metric set to the identity, at five Fisher label seeds. | `kl_standin_ablation/` (`_klsi`) |
 | `mla_w64_transmla_sigma`, `mla_w16_transmla_sigma` | TransMLA | TransMLA's conversion (Meng et al., 2025), built from the same measured Σ. | `grad_clip/` |
 | `mla_w64_mha2mla_s2norm`, `mla_w16_mha2mla_s2norm` | MHA2MLA | MHA2MLA's conversion (Ji et al., 2025), which un-ropes the least-contributing key dimensions, chosen by its 2-norm criterion. | `grad_clip/` |
@@ -50,6 +50,6 @@ The other experiments are here as code: `grad_clip_5m/` and `kl_standin_5m/` (Py
 | `mha` | MHA (uncompressed) | The original model, distilled under the same recipe, as a reference (branch `mha_G0`). | `grad_clip_5m/` |
 
 `grad_clip_5m/`'s registry also holds two arms the paper no longer reports: `mla_w64_ours_unrope_cost`
-($A_p^{\mathrm{ramp}}$ at 5M; the 5M GaugeMLA rows are `kl_standin_5m/`'s) and `mla_ours_unrope_cost` ($A_p^{\mathrm{ramp}}$
+($A_p^{\mathrm{mean}}$ at 5M; the 5M GaugeMLA rows are `kl_standin_5m/`'s) and `mla_ours_unrope_cost` ($A_p^{\mathrm{mean}}$
 at the rotary width that minimises the KL objective). The scripts keep them as they ran; the Colab notebooks neither
 build nor train them.
