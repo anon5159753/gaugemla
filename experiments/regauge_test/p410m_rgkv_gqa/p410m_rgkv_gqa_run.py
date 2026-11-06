@@ -467,6 +467,11 @@ metas = sorted(glob.glob(os.path.join(CKPT_ROOT, "**", META_NAME), recursive=Tru
 if not metas:
     stray = [d for d in sorted(glob.glob(os.path.join(CKPT_ROOT, "*")))
              if os.path.isdir(d) and glob.glob(os.path.join(d, "*.safetensors"))]
+    if not stray:
+        raise RuntimeError(
+            f"@@REGAUGE@@ no {META_NAME} under {CKPT_ROOT} and no checkpoint directory either: the init has not built "
+            f"{REGAUGE}'s pool checkpoints. Run p410m_rgkv_gqa_init.py with DRY_RUN=False and REGAUGE={REGAUGE} first (the build "
+            f"step, identity first), then this. Nothing is measured without them.")
     raise RuntimeError(
         f"no {META_NAME} anywhere under {CKPT_ROOT}, but {len(stray)} dir(s) hold safetensors.\n"
         f"  e.g. {stray[:3]}\n"

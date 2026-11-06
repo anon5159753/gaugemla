@@ -56,7 +56,7 @@ EVAL_DOCS_SHA = "239226f87c30f945cddb60ac7dc0d6d2b63ff44dde1d4a3c36c5db12c75045c
 def describe(cond):
     s = CONDITIONS[cond]
     g = GAUGES[s["gauge"]]
-    return f"{g['text']}; the GQA mean pool built from the regauged checkpoint (the template's fits re-measured on it, unread by the pool)"
+    return f"{g['text']}; the GQA mean pool built from the regauged checkpoint (closed-form from its weights; nothing fitted)"
 
 def builds(cond, arm):
     if CONDITIONS[cond]["fisher"] != "measured":

@@ -184,7 +184,7 @@ take much longer to initialise.
 | `colab/pythia410m_train_5M.ipynb` | A100, High-RAM | 5M-token training: GaugeMLA's 3 branches in one cell, the other constructions' 18 (the MHA control included) in the next |
 | **The regauge test** | | |
 | `colab/pythia410m_regauge.ipynb` | CPU, High-RAM, then A100 | the regauge test, the paper's Tables 3 and 4 (at least 75 GB free on Drive; not yet run on Colab): see [`experiments/regauge_test/README.md`](experiments/regauge_test/README.md) |
-| `colab/pythia410m_regauge_gqa.ipynb` | CPU, High-RAM, then A100 | the regauge test's GQA row: the mean pool (`pool`) under the same two gauges, 9 cells at t = 0, the GQA row of Figure 1 and of Table 4 (at least 20 GB free on Drive; not yet run on Colab): see the same README |
+| `colab/pythia410m_regauge_gqa.ipynb` | A100, High-RAM (the build step uses no GPU) | the regauge test's GQA row: the mean pool (`pool`) under the same two gauges, 9 cells at t = 0, the GQA row of Figure 1 and of Table 4 (at least 20 GB free on Drive; not yet run through on Colab): see the same README |
 
 Each notebook mounts Google Drive, clones only the parts of the repository it uses, and starts that experiment's
 script. Everything is written under `MyDrive/gaugemla/`: `kl_standin_50m/p410m_klgc/` (GaugeMLA) and
