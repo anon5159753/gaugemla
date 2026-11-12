@@ -8,7 +8,6 @@ it only measures the checkpoints). `colab/launch.py` runs either one.
 
 - `grad_clip/<model>_gc/` → `results/<model>_gc/`: TransMLA, MHA2MLA, CARE and $A_p^{\mathrm{mean}}$.
 - `kl_standin_50m/<model>_klgc/` → `results/kl_standin_50m/<model>/`: GaugeMLA.
-- `care_gqa/<model>_cg/` → `results/care_gqa/<model>_cg/`: CARE on the three grouped-query models.
 - `kl_standin_50m/kl_full_eval/` → `results/kl_standin_eval/<model>/`: GaugeMLA's t = 0 initialisations and saved
   50M models scored on the full task splits.
 
@@ -16,8 +15,7 @@ The other experiments are here as code: `grad_clip_5m/` and `kl_standin_5m/` (Py
 `true_fisher_x1_seeds/` and `kl_standin_ablation/` (the t = 0 seed study and the Σ = I ablation), `regauge_test/`
 (MHA2MLA, TransMLA, CARE and GaugeMLA built from a regauged Pythia-410m in `p410m_rgkv/`, and GQA's mean pool from
 the same regauged checkpoints in `p410m_rgkv_gqa/`; its own [README](regauge_test/README.md) defines the gauges and
-gives the paper's tables), and the evaluation scripts `grad_clip/full_eval/`, `care_gqa/care_full_eval/` and
-`kl_standin_ablation/kl_abl_eval/`.
+gives the paper's tables), and the evaluation scripts `grad_clip/full_eval/` and `kl_standin_ablation/kl_abl_eval/`.
 The paper reports their results.
 
 ## Names
@@ -42,7 +40,7 @@ The paper reports their results.
 | `mla_w64_ours_unrope_cost_klsi`, `mla_w16_ours_unrope_cost_klsi` | Σ = I (ablation) | GaugeMLA with the input metric set to the identity, at five Fisher label seeds. | `kl_standin_ablation/` (`_klsi`) |
 | `mla_w64_transmla_sigma`, `mla_w16_transmla_sigma` | TransMLA | TransMLA's conversion (Meng et al., 2025), built from the same measured Σ. | `grad_clip/` |
 | `mla_w64_mha2mla_s2norm`, `mla_w16_mha2mla_s2norm` | MHA2MLA | MHA2MLA's conversion (Ji et al., 2025), which un-ropes the least-contributing key dimensions, chosen by its 2-norm criterion. | `grad_clip/` |
-| `mla_w64_care_sigma`, `mla_w16_care_sigma` | CARE | CARE's covariance-aware conversion (Zhou et al., 2026), built from the same measured Σ, with TransMLA's rotary path. On the grouped-query models (`w16`) the solve runs on the source model's own key and value rows, as CARE's released code does on a grouped-query layer, and is then expanded to the per-head layout the other arms use. | `grad_clip/` (`w64`), `care_gqa/` (`w16`) |
+| `mla_w64_care_sigma`, `mla_w16_care_sigma` | CARE | CARE's covariance-aware conversion (Zhou et al., 2026), built from the same measured Σ, with TransMLA's rotary path. On the grouped-query models (`w16`) the solve runs on the source model's own key and value rows, as CARE's released code does on a grouped-query layer, and is then expanded to the per-head layout the other arms use. | `grad_clip/` |
 | `decoupled_optwide_fisher_sigma_dkr64` | Decoupled, KL objective, d_h^R = 64 | One key–value latent solved under the KL objective, with a rotary block of width 64 decoupled, cached before RoPE and read out per head. | `grad_clip_5m/` |
 | `pool` | GQA | Average the key and value maps of each group of consecutive heads, with the gauges at the identity. | `grad_clip_5m/` |
 | `gauge3B` | GQA + optimal gauge | Keep the group averages and solve each head's gauge against them. | `grad_clip_5m/` |

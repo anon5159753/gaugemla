@@ -7,8 +7,7 @@ GaugeMLA without the KL stand-in: the ablation $A_p^{\mathrm{mean}}$, the earlie
 |---|---|
 | `kl_standin_50m/<model>/` | **GaugeMLA, the method of the paper**: arm `mla_w64_ours_unrope_cost_kl` on the multi-head models and `mla_w16_ours_unrope_cost_kl` on the grouped-query ones, trained for 50M tokens at 25, 12.5 and 6.25% of the KV cache. |
 | `kl_standin_eval/<model>/` | GaugeMLA's t = 0 initialisations and saved 50M models, and the original model, scored on the full splits of the ten tasks. |
-| `<model>_gc/` | The methods it is compared with, trained the same way: TransMLA, MHA2MLA, CARE (multi-head models; the grouped-query ones are in `care_gqa/`), and **$A_p^{\mathrm{mean}}$, GaugeMLA's un-roping ablation** (arm `mla_w{64,16}_ours_unrope_cost`). |
-| `care_gqa/<model>_cg/` | CARE on the three grouped-query models (arm `mla_w16_care_sigma`), trained the same way. |
+| `<model>_gc/` | The methods it is compared with, trained the same way: TransMLA, MHA2MLA, CARE, and **$A_p^{\mathrm{mean}}$, GaugeMLA's un-roping ablation** (arm `mla_w{64,16}_ours_unrope_cost`). |
 
 ## GaugeMLA and $A_p^{\mathrm{mean}}$
 
@@ -29,10 +28,11 @@ Every run in both folders was trained the same way:
 
 ## Files
 
-- `kl_standin_50m/<model>/G<G>.jsonl`, `<model>_gc/runs/<stamp>/kd_*_<branch>_s42.jsonl` and
-  `care_gqa/<model>_cg/runs/kd_<branch>_s42.jsonl` have one row per evaluation point: KL to the teacher and to the
-  original model with standard errors and per-document values, CE, the task battery at selected points, and gradient
-  norms. `care_gqa/` leaves the stamp folder out of the path; the stamp is in each `runs/_manifest.json`.
+- `kl_standin_50m/<model>/G<G>.jsonl` and `<model>_gc/runs/<stamp>/kd_*_<branch>_s42.jsonl` have one row per
+  evaluation point: KL to the teacher and to the original model with standard errors and per-document values, CE,
+  the task battery at selected points, and gradient norms. On the grouped-query models CARE was trained after the
+  other methods, so its runs have a stamp of their own (`<model>_gc/runs/grid-<model>_cg-…/`), and its
+  initialisation's record is `<model>_gc/init/_cells_care.json`.
 - Beside them are each run's manifest and reference, the t = 0 checkpoints' records (`init/`) and the saved models'
   configs (`models/`).
 - `kl_standin_50m/NAMES.txt` gives each model's G per budget (G = 4, 2, 1 is 25, 12.5, 6.25% on Pythia-410m) and the
@@ -126,4 +126,4 @@ Every run in both folders was trained the same way:
 |  | MHA2MLA | 7.175 | 1.061 | 6.207 | 0.767 | 4.972 | 0.551 |
 |  | CARE | 5.487 | 0.695 | 4.950 | 0.461 | 4.683 | 0.331 |
 
-GaugeMLA is our method; $A_p^{\mathrm{mean}}$ is its un-roping ablation (the earlier GaugeMLA, which un-ropes by the mean rotation over the offsets), shown beside it and left out of the bolding. Bold is the lowest of GaugeMLA, TransMLA, MHA2MLA and CARE for that model, budget, time and KL. At t = 0, GaugeMLA and $A_p^{\mathrm{mean}}$ are the initialisation each run trained from; the paper reports the mean over five draws of $F_i$. CARE on the grouped-query models is in `care_gqa/`.
+GaugeMLA is our method; $A_p^{\mathrm{mean}}$ is its un-roping ablation (the earlier GaugeMLA, which un-ropes by the mean rotation over the offsets), shown beside it and left out of the bolding. Bold is the lowest of GaugeMLA, TransMLA, MHA2MLA and CARE for that model, budget, time and KL. At t = 0, GaugeMLA and $A_p^{\mathrm{mean}}$ are the initialisation each run trained from; the paper reports the mean over five draws of $F_i$.

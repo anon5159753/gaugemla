@@ -209,8 +209,7 @@ says which folder is GaugeMLA and how it differs from its ablation $A_p^{\mathrm
 | folder | contents |
 |---|---|
 | `results/kl_standin_50m/<model>/` | **GaugeMLA's 50M training runs**, 7 models, at 25 / 12.5 / 6.25% of the KV cache. `G<G>.jsonl` has one row per evaluation point (KL to the teacher and to the original model with their standard errors and per-document values, the task battery at selected points, gradient norms), beside the stamp's `manifest.json` and `reference.json`, `init/` (each t = 0 checkpoint's record) and `models/` (each saved model's config and conversion record). `NAMES.txt` maps these names to the original run names and gives each model's G per budget. |
-| `results/<model>_gc/` | **The other methods' 50M training runs**, 7 models, the same recipe, evaluation documents and training stream: TransMLA and MHA2MLA on every model, CARE on the four multi-head ones, and the ablation $A_p^{\mathrm{mean}}$ (arm `mla_w*_ours_unrope_cost`). `runs/<stamp>/kd_*_<branch>_s42.jsonl` has the same rows, beside the stamp's `_manifest.json`, reference and summary rows, and `models/*/`. `init/` holds each t = 0 checkpoint's record and `_cells.json`. |
-| `results/care_gqa/<model>_cg/` | **CARE's 50M training runs on the three grouped-query models** (arm `mla_w16_care_sigma`), under the same recipe, evaluation documents and training stream as `<model>_gc/`. `runs/kd_<branch>_s42.jsonl` has the same rows, with the stamp folder left out of the path (the stamp is in `runs/_manifest.json`), beside the reference and `models/*/`. `init/` holds each t = 0 checkpoint's record and `_cells.json`. |
+| `results/<model>_gc/` | **The other methods' 50M training runs**, 7 models, the same recipe, evaluation documents and training stream: TransMLA, MHA2MLA and CARE on every model, and the ablation $A_p^{\mathrm{mean}}$ (arm `mla_w*_ours_unrope_cost`). `runs/<stamp>/kd_*_<branch>_s42.jsonl` has the same rows, beside the stamp's `_manifest.json`, reference and summary rows, and `models/*/`. `init/` holds each t = 0 checkpoint's record and `_cells.json`. On the three grouped-query models CARE was trained after the other methods, under the same recipe, so it has a stamp of its own (`runs/grid-<model>_cg-…/`) and its initialisation's record is `init/_cells_care.json`. |
 | `results/kl_standin_eval/<model>/` | **GaugeMLA on the full task splits**: its t = 0 initialisations (`G<G>_t0.json`) and saved 50M models (`G<G>_50M.json`), and the original model (`original.json`), each on the ten tasks. `NAMES.txt` maps the names to the original ones. |
 
 The task battery logged in the run rows has 13 tasks. Ten are the paper's: LAMBADA, ARC-Easy, ARC-Challenge, PIQA,
@@ -232,9 +231,6 @@ in the paper:
 | `l3_1b_gc` | meta-llama/Llama-3.2-1B | meta-llama/Llama-3.1-8B (float32) |
 | `tl1b_gc` | TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T | meta-llama/Llama-2-7b-hf (float32) |
 | `sm360m_gc` | HuggingFaceTB/SmolLM-360M | HuggingFaceTB/SmolLM2-1.7B (float32) |
-| `l3_1b_cg` | meta-llama/Llama-3.2-1B | meta-llama/Llama-3.1-8B (float32) |
-| `tl1b_cg` | TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T | meta-llama/Llama-2-7b-hf (float32) |
-| `sm360m_cg` | HuggingFaceTB/SmolLM-360M | HuggingFaceTB/SmolLM2-1.7B (float32) |
 
 ## Our method in the code
 
@@ -267,13 +263,12 @@ GaugeMLA's own code, apart from the baselines':
   teachers need more GPU memory (StableLM-2-1.6B's 12B teacher alone takes 48 GB in fp32).
   - `kl_standin_50m/` (7 models): GaugeMLA, 50M tokens, gradient clipping 1.0, final models saved.
   - `grad_clip/` (7 models): TransMLA, MHA2MLA, CARE and $A_p^{\mathrm{mean}}$, the same training.
-  - `care_gqa/` (3 models): CARE on the grouped-query models, the same training.
   - `kl_standin_5m/` and `grad_clip_5m/` (Pythia-410m): GaugeMLA and every other construction, 5M tokens, the same
     training.
   - `kl_standin_ablation/` (14 kits) and `true_fisher_x1_seeds/` (7 kits), t = 0 only: GaugeMLA at four more draws of
     $F_i$ (`_kls`), the ablation Σ = I at all five (`_klsi`), and $A_p^{\mathrm{mean}}$ at four more (`_seeds`).
-  - `kl_standin_50m/kl_full_eval/`, `grad_clip/full_eval/`, `care_gqa/care_full_eval/` and
-    `kl_standin_ablation/kl_abl_eval/`: the full-split task evaluations, as the batch scripts they ran as.
+  - `kl_standin_50m/kl_full_eval/`, `grad_clip/full_eval/` and `kl_standin_ablation/kl_abl_eval/`: the full-split task
+    evaluations, as the batch scripts they ran as.
   - `regauge_test/p410m_rgkv/` (Pythia-410m), t = 0 only: the regauge test, run once per condition with `REGAUGE`.
     [`experiments/regauge_test/README.md`](experiments/regauge_test/README.md) defines the gauges, gives the paper's
     Tables 4 and 5, and says how to run it.
