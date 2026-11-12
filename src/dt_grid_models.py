@@ -92,6 +92,14 @@ def save_final(m):
         raise ValueError(f"save_final {v!r} is not a bool")
     return v
 
+def care_gqa(m):
+    v = m.get("care_gqa", False)
+    if not isinstance(v, bool):
+        raise ValueError(f"care_gqa {v!r} is not a bool")
+    if v and not is_gqa(m):
+        raise ValueError("care_gqa is for a GQA model; an MHA model builds CARE without it")
+    return v
+
 def comparison_width(m):
     return m.get("w_compare", COMPARE_W)
 
@@ -1985,6 +1993,72 @@ MODELS = {
         t0_only=True,
         regauge=("identity", "kvs", "kvd"),
     ),
+    "sm360m_cg": dict(
+        base="sm360m",
+        hf_id="HuggingFaceTB/SmolLM-360M", revision="59f7ef243ee09a72cbc14cb054393a3e3b771d41",
+        family="llama_layout", model_type="llama", role="trained",
+        L=32, dm=960, H=15, Hkv=5, d_k=64, r=64, rope_base=10000, max_ctx=2048, vocab=49152,
+        qkv_bias=False, o_bias=False, norm_kind="rms", tie_word_embeddings=True,
+        tokenizer_oid="f922b1797f0c88e71addc8393787831f2477a4bd",
+        teacher=dict(hf_id="HuggingFaceTB/SmolLM2-1.7B", revision="effd688a12921b4cc83e3312b6feb579f70f9c71",
+                     dtype="float32", vocab=49152, tokenizer_oid="f922b1797f0c88e71addc8393787831f2477a4bd"),
+        kl_width_rule="unrope_argmin", init_layout="B",
+        w_compare=16,
+        train_plan=TRAIN_PLAN_MLA50,
+        init_plan=INIT_PLAN_MLA_ONLY,
+        init_budgets=INIT_BUDGETS_TRAINED,
+        arms_only=("mla_w16_care_sigma",),
+        fisher_labels="model",
+        fisher_exclude_top=0.01,
+        grad_clip=GRAD_CLIP_STANDARD,
+        save_final=True,
+        care_gqa=True,
+    ),
+    "tl1b_cg": dict(
+        base="tl1b",
+        hf_id="TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T",
+        revision="59f6f375b26bde864a6ca194a9a3044570490064",
+        family="llama_layout", model_type="llama", role="trained",
+        L=22, dm=2048, H=32, Hkv=4, d_k=64, r=64, rope_base=10000, max_ctx=2048, vocab=32000,
+        qkv_bias=False, o_bias=False, norm_kind="rms", tie_word_embeddings=False,
+        tokenizer_oid="a6e931b92caff4c79c5c56282f1e89569a0ae558",
+        teacher=dict(hf_id="meta-llama/Llama-2-7b-hf", revision="01c7f73d771dfac7d292323805ebc428287df4f9",
+                     dtype="float32", vocab=32000, tokenizer_oid="a6e931b92caff4c79c5c56282f1e89569a0ae558",
+                     gated=True),
+        kl_width_rule="unrope_argmin", init_layout="B",
+        w_compare=16,
+        train_plan=TRAIN_PLAN_MLA50,
+        init_plan=INIT_PLAN_MLA_ONLY,
+        init_budgets=INIT_BUDGETS_TRAINED,
+        arms_only=("mla_w16_care_sigma",),
+        fisher_labels="model",
+        fisher_exclude_top=0.01,
+        grad_clip=GRAD_CLIP_STANDARD,
+        save_final=True,
+        care_gqa=True,
+    ),
+    "l3_1b_cg": dict(
+        base="l3_1b",
+        hf_id="meta-llama/Llama-3.2-1B", revision="4e20de362430cd3b72f300e6b0f18e50e7166e08", gated=True,
+        family="llama_layout", model_type="llama", role="trained",
+        L=16, dm=2048, H=32, Hkv=8, d_k=64, r=64, rope_base=500000, max_ctx=131072, vocab=128256,
+        qkv_bias=False, o_bias=False, norm_kind="rms", tie_word_embeddings=True, rope_scaling="llama3",
+        tokenizer_oid="5cc5f00a5b203e90a27a3bd60d1ec393b07971e8",
+        teacher=dict(hf_id="meta-llama/Llama-3.1-8B", revision="d04e592bb4f6aa9cfee91e2e20afa771667e1d4b",
+                     dtype="float32", vocab=128256, tokenizer_oid="f916e71031fa08f3c6ef1680a590c15b52d3cdd9",
+                     tokenizer_equal="functional", gated=True),
+        kl_width_rule="unrope_argmin", init_layout="B",
+        w_compare=16,
+        train_plan=TRAIN_PLAN_MLA50,
+        init_plan=INIT_PLAN_MLA_ONLY,
+        init_budgets=INIT_BUDGETS_TRAINED,
+        arms_only=("mla_w16_care_sigma",),
+        fisher_labels="model",
+        fisher_exclude_top=0.01,
+        grad_clip=GRAD_CLIP_STANDARD,
+        save_final=True,
+        care_gqa=True,
+    ),
     "l2_13b": dict(
         hf_id="meta-llama/Llama-2-13b-hf", revision="5c31dfb671ce7cfe2d7bb7c04375e44c55e815b1", gated=True,
         family="llama_layout", model_type="llama", role="retired",
@@ -2026,7 +2100,8 @@ ORDER = ("p410m", "slm1p6b", "tl1b", "sm360m", "mn4b", "olmo1b", "q0p5b", "l3_1b
          "p410m_kl5m",
          "p410m_rg",
          "p410m_rgkv",
-         "p410m_rgkv_gqa")
+         "p410m_rgkv_gqa",
+         "sm360m_cg", "tl1b_cg", "l3_1b_cg")
 
 CONSTANTS = dict(long=LONG, short=SHORT, control=CONTROL, pending=PENDING_ARMS, retired=RETIRED_ARMS,
                  compare=COMPARE, klw=KLW, dec_fixed=DEC_FIXED, w_compare=COMPARE_W, fixed_w=FIXED_W,
@@ -2091,6 +2166,7 @@ def cells(tag):
     t0o = t0_only(m)
     grad_clip(m)
     save_final(m)
+    care_gqa(m)
     role, full, gqa = m["role"], full_rope(m), is_gqa(m)
     W = comparison_width(m)
     mla50 = m.get("train_plan") == TRAIN_PLAN_MLA50
@@ -2145,7 +2221,7 @@ def cells(tag):
                         init, why = "PENDING:D-STAR", reason + "; asymmetric K/V groups might represent it"
             elif arm == "optwide" and b["one_kv"]:
                 init, why = "DEDUP:optimal", "at one KV head optwide is optimal's construction"
-            elif arm in CARE and gqa:
+            elif arm in CARE and gqa and not care_gqa(m):
                 init, why = "PENDING:D-CG1", "CARE's Σ-port equivalence is MHA-only (dt_mla_care.py:423)"
             elif arm in CARE and role == "t0" and m["dm"] >= 5000:
                 init, why = "PENDING:D-L1", "CARE at 12-13B: ~30-40 h per cell on CPU float64 (port estimate)"

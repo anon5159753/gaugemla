@@ -1,0 +1,11 @@
+{
+ "teacher": "meta-llama/Llama-3.1-8B",
+ "teacher_revision": "d04e592bb4f6aa9cfee91e2e20afa771667e1d4b",
+ "teacher_dtype": "float32",
+ "original": "meta-llama/Llama-3.2-1B",
+ "original_revision": "4e20de362430cd3b72f300e6b0f18e50e7166e08",
+ "kl_teacher_vs_original": 0.38443771400488913,
+ "kl_original_self": 0.0,
+ "ce_original": 2.2661348059773445,
+ "ce_teacher": 1.9159068753942847
+}
