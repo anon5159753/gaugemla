@@ -60,7 +60,8 @@ ARM_NAMES =("mha", "pool", "gauge3B", "optimal", "optimal_search",
              "mla_w64_ours_unrope_cost_ii", "mla_w16_ours_unrope_cost_ii",
              "mla_w64_ours_unrope_cost_kl", "mla_w16_ours_unrope_cost_kl",
              "mla_w64_ours_unrope_cost_klsi", "mla_w16_ours_unrope_cost_klsi",
-             "mla_w16_care_sigma")
+             "mla_w16_care_sigma",
+             "mla_w16_transmla_native_sigma", "mla_w16_care_native_sigma", "mla_w16_mha2mla_native_s2norm")
 
 MLA_ARMS = {
     "mla_ours_fisher_sigma": ("dt_mla_ours", "shared", frozenset({"fisher", "sigma"}), ("dkv",),
@@ -122,6 +123,11 @@ MLA_ARMS = {
     "mla_w16_ours_unrope_cost_klsi": ("dt_mla_w16_ours_unrope_cost_klsi", "shared", frozenset({"fisher"}),
                                       ("dkv",), "d_h^-1/2"),
     "mla_w16_care_sigma": ("dt_mla_w16_care", "shared", frozenset({"sigma"}), ("dkv",), "(d_h+w)^-1/2"),
+    "mla_w16_transmla_native_sigma": ("dt_mla_w16_transmla_native", "shared", frozenset({"sigma"}), ("dkv",),
+                                      "(d_h+w)^-1/2"),
+    "mla_w16_care_native_sigma": ("dt_mla_w16_care_native", "shared", frozenset({"sigma"}), ("dkv",), "(d_h+w)^-1/2"),
+    "mla_w16_mha2mla_native_s2norm": ("dt_mla_w16_mha2mla_native", "shared", frozenset({"s2norm"}), ("uk", "uv"),
+                                      "d_h^-1/2"),
 }
 MLA_WIDTH_RULE = {"mla_ours_fisher_sigma_eig": "eigen",
                   "mla_w64_ours_fisher_sigma": "fixed:64", "mla_w64_transmla_sigma": "fixed:64",
@@ -138,7 +144,9 @@ MLA_WIDTH_RULE = {"mla_ours_fisher_sigma_eig": "eigen",
                   "mla_w64_ours_unrope_cost_ii": "fixed:64", "mla_w16_ours_unrope_cost_ii": "fixed:16",
                   "mla_w64_ours_unrope_cost_kl": "fixed:64", "mla_w16_ours_unrope_cost_kl": "fixed:16",
                   "mla_w64_ours_unrope_cost_klsi": "fixed:64", "mla_w16_ours_unrope_cost_klsi": "fixed:16",
-                  "mla_w16_care_sigma": "fixed:16"}
+                  "mla_w16_care_sigma": "fixed:16",
+                  "mla_w16_transmla_native_sigma": "fixed:16", "mla_w16_care_native_sigma": "fixed:16",
+                  "mla_w16_mha2mla_native_s2norm": "fixed:16"}
 _MLA_WIDTH_RULES = ("argmin", "eigen", "fixed:64", "unrope_argmin", "fixed:16")
 _MLA_FIXED_W = {"fixed:64": 64, "fixed:16": 16}
 MLA_WIDTH_SCHEMA = "mla-width/v3"

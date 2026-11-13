@@ -153,21 +153,21 @@ torch.manual_seed(20260914)
 
 # %%
 MODEL_TAG      = 'tl1b_gc'
-REGISTRY_SHA   = '32bd56b9d0330d0b07d87c5162a5a59dee9f0da75cbca426b2c482d963ec63b0'
+REGISTRY_SHA   = '18dd6ffec81c7ddd7c0406e03e7b7592df5d77afb62c4cabed55525a3c082707'
 GRID = {'H': 32,
  'Hkv': 4,
  'L': 22,
  'arms_only': ('mla_w16_ours_unrope_cost',
-               'mla_w16_transmla_sigma',
-               'mla_w16_mha2mla_s2norm',
-               'mla_w16_care_sigma'),
+               'mla_w16_transmla_native_sigma',
+               'mla_w16_care_native_sigma',
+               'mla_w16_mha2mla_native_s2norm'),
  'base': 'tl1b',
- 'care_gqa': True,
  'd_k': 64,
  'dm': 2048,
  'family': 'llama_layout',
  'fisher_exclude_top': 0.01,
  'fisher_labels': 'model',
+ 'gqa_native': True,
  'grad_clip': 1.0,
  'hf_id': 'TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T',
  'init_budgets': 'trained',
@@ -180,7 +180,7 @@ GRID = {'H': 32,
  'o_bias': False,
  'qkv_bias': False,
  'r': 64,
- 'registry_sha': '32bd56b9d0330d0b07d87c5162a5a59dee9f0da75cbca426b2c482d963ec63b0',
+ 'registry_sha': '18dd6ffec81c7ddd7c0406e03e7b7592df5d77afb62c4cabed55525a3c082707',
  'registry_version': 'grid-2026-10-04.3',
  'revision': '59f6f375b26bde864a6ca194a9a3044570490064',
  'role': 'trained',
@@ -198,31 +198,31 @@ GRID = {'H': 32,
  'train_plan': 'mla50',
  'vocab': 32000,
  'w_compare': 16}
-GRID_CELLS = [('mla_w16_transmla_sigma', 1, 128, [50000000]),
- ('mla_w16_mha2mla_s2norm', 1, 128, [50000000]),
- ('mla_w16_care_sigma', 1, 128, [50000000]),
- ('mla_w16_ours_unrope_cost', 1, 128, [50000000]),
- ('mla_w16_transmla_sigma', 0.5, 64, [50000000]),
- ('mla_w16_mha2mla_s2norm', 0.5, 64, [50000000]),
- ('mla_w16_care_sigma', 0.5, 64, [50000000]),
+GRID_CELLS = [('mla_w16_ours_unrope_cost', 1, 128, [50000000]),
+ ('mla_w16_transmla_native_sigma', 1, 128, [50000000]),
+ ('mla_w16_care_native_sigma', 1, 128, [50000000]),
+ ('mla_w16_mha2mla_native_s2norm', 1, 128, [50000000]),
  ('mla_w16_ours_unrope_cost', 0.5, 64, [50000000]),
- ('mla_w16_transmla_sigma', 0.25, 32, [50000000]),
- ('mla_w16_mha2mla_s2norm', 0.25, 32, [50000000]),
- ('mla_w16_care_sigma', 0.25, 32, [50000000]),
- ('mla_w16_ours_unrope_cost', 0.25, 32, [50000000])]
-CELL_W = {('mla_w16_care_sigma', 0.25): ('fixed:16', 16),
- ('mla_w16_care_sigma', 0.5): ('fixed:16', 16),
- ('mla_w16_care_sigma', 1): ('fixed:16', 16),
- ('mla_w16_mha2mla_s2norm', 0.25): ('fixed:16', 16),
- ('mla_w16_mha2mla_s2norm', 0.5): ('fixed:16', 16),
- ('mla_w16_mha2mla_s2norm', 1): ('fixed:16', 16),
+ ('mla_w16_transmla_native_sigma', 0.5, 64, [50000000]),
+ ('mla_w16_care_native_sigma', 0.5, 64, [50000000]),
+ ('mla_w16_mha2mla_native_s2norm', 0.5, 64, [50000000]),
+ ('mla_w16_ours_unrope_cost', 0.25, 32, [50000000]),
+ ('mla_w16_transmla_native_sigma', 0.25, 32, [50000000]),
+ ('mla_w16_care_native_sigma', 0.25, 32, [50000000]),
+ ('mla_w16_mha2mla_native_s2norm', 0.25, 32, [50000000])]
+CELL_W = {('mla_w16_care_native_sigma', 0.25): ('fixed:16', 16),
+ ('mla_w16_care_native_sigma', 0.5): ('fixed:16', 16),
+ ('mla_w16_care_native_sigma', 1): ('fixed:16', 16),
+ ('mla_w16_mha2mla_native_s2norm', 0.25): ('fixed:16', 16),
+ ('mla_w16_mha2mla_native_s2norm', 0.5): ('fixed:16', 16),
+ ('mla_w16_mha2mla_native_s2norm', 1): ('fixed:16', 16),
  ('mla_w16_ours_unrope_cost', 0.25): ('fixed:16', 16),
  ('mla_w16_ours_unrope_cost', 0.5): ('fixed:16', 16),
  ('mla_w16_ours_unrope_cost', 1): ('fixed:16', 16),
- ('mla_w16_transmla_sigma', 0.25): ('fixed:16', 16),
- ('mla_w16_transmla_sigma', 0.5): ('fixed:16', 16),
- ('mla_w16_transmla_sigma', 1): ('fixed:16', 16)}
-CARE_ARMS = ('mla_care_sigma', 'mla_w64_care_sigma', 'mla_w16_care_sigma')
+ ('mla_w16_transmla_native_sigma', 0.25): ('fixed:16', 16),
+ ('mla_w16_transmla_native_sigma', 0.5): ('fixed:16', 16),
+ ('mla_w16_transmla_native_sigma', 1): ('fixed:16', 16)}
+CARE_ARMS = ('mla_care_sigma', 'mla_w64_care_sigma', 'mla_w16_care_native_sigma')
 MAX_TOKENS     = 50_000_000
 LR_PEAK        = 2e-5
 MODEL            = GRID["hf_id"]
@@ -453,10 +453,10 @@ ARCH_OF = {"mha": "mha",
            "mla_w64_ours_fisher_sigma": "mla", "mla_w64_transmla_sigma": "mla",
            "mla_w64_mha2mla_s2norm": "mla", "mla_w64_care_sigma": "mla",
            "decoupled_optwide_fisher_sigma_dkr64": "decoupled",
-           "mla_w16_care_sigma": "mla",
-           "mla_w16_mha2mla_s2norm": "mla",
+           "mla_w16_care_native_sigma": "mla",
+           "mla_w16_mha2mla_native_s2norm": "mla",
            "mla_w16_ours_unrope_cost": "mla",
-           "mla_w16_transmla_sigma": "mla",
+           "mla_w16_transmla_native_sigma": "mla",
            "optwide_fisher": "optimal"}
 WANTED_ARMS = ("pool", "gauge3B", "optimal", "optimal_search",
                "procrustes", "procrustes_simk", "optwide", "decoupled_optwide",
@@ -467,11 +467,11 @@ WANTED_ARMS = ("pool", "gauge3B", "optimal", "optimal_search",
                "mla_care_sigma",
                "mla_w64_ours_fisher_sigma", "mla_w64_transmla_sigma", "mla_w64_mha2mla_s2norm",
                "mla_w64_care_sigma", "decoupled_optwide_fisher_sigma_dkr64",
-               "mla_w16_care_sigma",
-               "mla_w16_mha2mla_s2norm",
+               "mla_w16_care_native_sigma",
+               "mla_w16_mha2mla_native_s2norm",
                "mla_w16_ours_unrope_cost",
-               "mla_w16_transmla_sigma")
-WANTED_ARMS = ('mla_w16_transmla_sigma', 'mla_w16_mha2mla_s2norm', 'mla_w16_care_sigma', 'mla_w16_ours_unrope_cost')
+               "mla_w16_transmla_native_sigma")
+WANTED_ARMS = ('mla_w16_ours_unrope_cost', 'mla_w16_transmla_native_sigma', 'mla_w16_care_native_sigma', 'mla_w16_mha2mla_native_s2norm')
 assert {a for a, *_ in GRID_CELLS} <= set(WANTED_ARMS), (GRID_CELLS, WANTED_ARMS)
 G1_DEDUP_BASE = {"optimal_search": "optimal", "procrustes_search": "procrustes",
                  "optwide": "optimal"}

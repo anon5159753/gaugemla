@@ -100,6 +100,18 @@ def care_gqa(m):
         raise ValueError("care_gqa is for a GQA model; an MHA model builds CARE without it")
     return v
 
+GQA_NATIVE_ARMS = ("mla_w16_transmla_native_sigma", "mla_w16_care_native_sigma", "mla_w16_mha2mla_native_s2norm")
+
+def gqa_native(m):
+    v = m.get("gqa_native", False)
+    if not isinstance(v, bool):
+        raise ValueError(f"gqa_native {v!r} is not a bool")
+    if v and not is_gqa(m):
+        raise ValueError("gqa_native is for a GQA model; on an MHA model the grid's baselines are their code already")
+    if v and comparison_width(m) != 16:
+        raise ValueError(f"gqa_native's arms are the w = 16 arms; this model's comparison width is {comparison_width(m)}")
+    return v
+
 def comparison_width(m):
     return m.get("w_compare", COMPARE_W)
 
@@ -782,13 +794,12 @@ MODELS = {
         train_plan=TRAIN_PLAN_MLA50,
         init_plan=INIT_PLAN_MLA_ONLY,
         init_budgets=INIT_BUDGETS_TRAINED,
-        arms_only=("mla_w16_ours_unrope_cost", "mla_w16_transmla_sigma", "mla_w16_mha2mla_s2norm",
-                   "mla_w16_care_sigma"),
+        arms_only=("mla_w16_ours_unrope_cost",) + GQA_NATIVE_ARMS,
         fisher_labels="model",
         fisher_exclude_top=0.01,
         grad_clip=GRAD_CLIP_STANDARD,
         save_final=True,
-        care_gqa=True,
+        gqa_native=True,
     ),
     "sm360m_gc": dict(
         base="sm360m",
@@ -804,13 +815,12 @@ MODELS = {
         train_plan=TRAIN_PLAN_MLA50,
         init_plan=INIT_PLAN_MLA_ONLY,
         init_budgets=INIT_BUDGETS_TRAINED,
-        arms_only=("mla_w16_ours_unrope_cost", "mla_w16_transmla_sigma", "mla_w16_mha2mla_s2norm",
-                   "mla_w16_care_sigma"),
+        arms_only=("mla_w16_ours_unrope_cost",) + GQA_NATIVE_ARMS,
         fisher_labels="model",
         fisher_exclude_top=0.01,
         grad_clip=GRAD_CLIP_STANDARD,
         save_final=True,
-        care_gqa=True,
+        gqa_native=True,
     ),
     "olmo1b_gc": dict(
         base="olmo1b",
@@ -865,13 +875,12 @@ MODELS = {
         train_plan=TRAIN_PLAN_MLA50,
         init_plan=INIT_PLAN_MLA_ONLY,
         init_budgets=INIT_BUDGETS_TRAINED,
-        arms_only=("mla_w16_ours_unrope_cost", "mla_w16_transmla_sigma", "mla_w16_mha2mla_s2norm",
-                   "mla_w16_care_sigma"),
+        arms_only=("mla_w16_ours_unrope_cost",) + GQA_NATIVE_ARMS,
         fisher_labels="model",
         fisher_exclude_top=0.01,
         grad_clip=GRAD_CLIP_STANDARD,
         save_final=True,
-        care_gqa=True,
+        gqa_native=True,
     ),
     "p410m_gc5m": dict(
         base="p410m",
@@ -2088,7 +2097,8 @@ def _grouping_ok(m, G):
     return True, ""
 
 def _rot(m, arm, b):
-    if arm in FIXED_W or arm in m.get("extra_arms", ()):
+    if arm in FIXED_W or arm in m.get("extra_arms", ()) \
+            or (arm in GQA_NATIVE_ARMS and gqa_native(m)):
         w = comparison_width(m)
         return f"fixed:{w}", w
     if arm == KLW:
@@ -2106,6 +2116,7 @@ def cells(tag):
     grad_clip(m)
     save_final(m)
     care_gqa(m)
+    xn = GQA_NATIVE_ARMS if gqa_native(m) else ()
     role, full, gqa = m["role"], full_rope(m), is_gqa(m)
     W = comparison_width(m)
     mla50 = m.get("train_plan") == TRAIN_PLAN_MLA50
@@ -2130,17 +2141,17 @@ def cells(tag):
     _xw = [a for a in xa if not a.startswith(f"mla_w{W}_")]
     if _xw:
         raise ValueError(f"{tag}: the extra arms {_xw} are not w = {W} arms; this model's comparison width is {W}")
-    arms = arms + list(xa)
+    arms = arms + list(xa) + list(xn)
     for b in budgets(tag):
         for arm in arms:
-            _long = arm in LONG or arm in OURS_FULL or arm in xa
+            _long = arm in LONG or arm in OURS_FULL or arm in xa or arm in xn
             tokens = TOKENS_LONG if _long else TOKENS_SHORT
             if mla50:
                 tokens = m.get("train_tokens", TOKENS_MLA50) if _long else ()
             elif "train_tokens" in m:
                 tokens = tuple(t for t in tokens if t in m["train_tokens"])
             init, why, degenerate = "BUILD", "", None
-            if (arm in FIXED_W or arm in xa) and b["B"] <= W:
+            if (arm in FIXED_W or arm in xa or arm in xn) and b["B"] <= W:
                 init, why = "NOT_REPRESENTABLE", (f"the fixed rotary width {W} leaves no latent at "
                                                   f"B = {b['B']} (D-R12, decided 2026-10-04)")
             elif arm in SUBST_FULL and full:
@@ -2170,7 +2181,7 @@ def cells(tag):
                                   "its gain over pool on the keys is predicted small, not exactly zero")
                 elif arm in DECOUPLED:
                     degenerate = "EXACT: full RoPE: the key share of the latent Gram is 0 (MODEL_GRID_PLAN §4)"
-            if (mla_only and arm not in MLA_ONLY_KEEP and arm not in xa
+            if (mla_only and arm not in MLA_ONLY_KEEP and arm not in xa and arm not in xn
                     and (init == "BUILD" or init.startswith("DEDUP:"))):
                 init, why, degenerate = "OMITTED:MLA_ONLY", (
                     "MLA_ONLY decided 2026-10-08 (the authors): \"we're not running the other arms, just the MLA arms\"; "

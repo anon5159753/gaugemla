@@ -38,9 +38,9 @@ The paper reports their results.
 | `mla_w64_ours_unrope_cost_kl`, `mla_w16_ours_unrope_cost_kl` | **GaugeMLA (our method)** | MLA initialised under the KL objective, with the rotary key cached after RoPE as in MLA. The rotary planes that do not fit are un-roped, each read out by its head's KL stand-in $A^{\mathrm{KL}} = (F^{aa})^{-1} F^{ab}$, and the un-roped rows enter the latent weighted by $F^{aa}$. | `kl_standin_50m/`, `kl_standin_5m/`, `kl_standin_ablation/` (`_kls`) |
 | `mla_w64_ours_unrope_cost`, `mla_w16_ours_unrope_cost` | $A_p^{\mathrm{mean}}$ (ablation) | GaugeMLA with each un-roped plane read out by its mean rotation over the causal offsets instead (the earlier GaugeMLA). | `grad_clip/`, `true_fisher_x1_seeds/` |
 | `mla_w64_ours_unrope_cost_klsi`, `mla_w16_ours_unrope_cost_klsi` | Σ = I (ablation) | GaugeMLA with the input metric set to the identity, at five Fisher label seeds. | `kl_standin_ablation/` (`_klsi`) |
-| `mla_w64_transmla_sigma`, `mla_w16_transmla_sigma` | TransMLA | TransMLA's conversion (Meng et al., 2025), built from the same measured Σ. | `grad_clip/` |
-| `mla_w64_mha2mla_s2norm`, `mla_w16_mha2mla_s2norm` | MHA2MLA | MHA2MLA's conversion (Ji et al., 2025), which un-ropes the least-contributing key dimensions, chosen by its 2-norm criterion. | `grad_clip/` |
-| `mla_w64_care_sigma`, `mla_w16_care_sigma` | CARE | CARE's covariance-aware conversion (Zhou et al., 2026), built from the same measured Σ, with TransMLA's rotary path. On the grouped-query models (`w16`) the solve runs on the source model's own key and value rows, as CARE's released code does on a grouped-query layer, and is then expanded to the per-head layout the other arms use. | `grad_clip/` |
+| `mla_w64_transmla_sigma`, `mla_w16_transmla_native_sigma` | TransMLA | TransMLA's conversion (Meng et al., 2025), built from the same measured Σ. On the grouped-query models (`w16`) it follows TransMLA's released code on a grouped-query layer: it compresses the key and value heads the layer stores (each KV head once, not its copies for every query head), and is then written into the per-head layout the other arms use. | `grad_clip/` |
+| `mla_w64_mha2mla_s2norm`, `mla_w16_mha2mla_native_s2norm` | MHA2MLA | MHA2MLA's conversion (Ji et al., 2025), which un-ropes the least-contributing key dimensions, chosen by its 2-norm criterion. On the grouped-query models (`w16`) it follows MHA2MLA's released code on a grouped-query layer: the dimensions are ranked per stored KV head, each kept one is cached once, and the SVD runs on the stored key and value rows; it is laid out as TransMLA is, each query head reading its own group's rotary dimensions. | `grad_clip/` |
+| `mla_w64_care_sigma`, `mla_w16_care_native_sigma` | CARE | CARE's covariance-aware conversion (Zhou et al., 2026), built from the same measured Σ, with TransMLA's rotary path. On the grouped-query models (`w16`) the solve runs on the stored key and value heads, as CARE's released code does on a grouped-query layer, on TransMLA's rotary path as TransMLA's code builds it there, and is then written into the per-head layout the other arms use. | `grad_clip/` |
 | `decoupled_optwide_fisher_sigma_dkr64` | Decoupled, KL objective, d_h^R = 64 | One key–value latent solved under the KL objective, with a rotary block of width 64 decoupled, cached before RoPE and read out per head. | `grad_clip_5m/` |
 | `pool` | GQA | Average the key and value maps of each group of consecutive heads, with the gauges at the identity. | `grad_clip_5m/` |
 | `gauge3B` | GQA + optimal gauge | Keep the group averages and solve each head's gauge against them. | `grad_clip_5m/` |
@@ -49,6 +49,11 @@ The paper reports their results.
 | `optimal` | Per-group subspace | Keep GQA's consecutive groups and solve for each group's optimal key and value subspaces. | `grad_clip_5m/` |
 | `optwide` | Joint key, joint value subspace | One key subspace and one value subspace, each shared by every head of the layer; at one KV head it is the per-group subspace. | `grad_clip_5m/` |
 | `mha` | MHA (uncompressed) | The original model, distilled under the same recipe, as a reference (branch `mha_G0`). | `grad_clip_5m/` |
+
+On the grouped-query models the registry also names `mla_w16_transmla_sigma`, `mla_w16_mha2mla_s2norm` and
+`mla_w16_care_sigma`, the earlier builds of the three baselines on a copy of each KV head for every query head that
+reads it. The `_native` arms replace them: no script here builds or trains them, and `results/` holds none of their
+runs (their names remain in the cell tables, and in the manifest of the $A_p^{\mathrm{mean}}$ stamp on those models).
 
 `grad_clip_5m/`'s registry also holds two arms the paper no longer reports: `mla_w64_ours_unrope_cost`
 ($A_p^{\mathrm{mean}}$ at 5M; the 5M GaugeMLA rows are `kl_standin_5m/`'s) and `mla_ours_unrope_cost` ($A_p^{\mathrm{mean}}$

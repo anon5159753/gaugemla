@@ -7,7 +7,7 @@ GaugeMLA without the KL stand-in: the ablation $A_p^{\mathrm{mean}}$, the earlie
 |---|---|
 | `kl_standin_50m/<model>/` | **GaugeMLA, the method of the paper**: arm `mla_w64_ours_unrope_cost_kl` on the multi-head models and `mla_w16_ours_unrope_cost_kl` on the grouped-query ones, trained for 50M tokens at 25, 12.5 and 6.25% of the KV cache. |
 | `kl_standin_eval/<model>/` | GaugeMLA's t = 0 initialisations and saved 50M models, and the original model, scored on the full splits of the ten tasks. |
-| `<model>_gc/` | The methods it is compared with, trained the same way: TransMLA, MHA2MLA, CARE, and **$A_p^{\mathrm{mean}}$, GaugeMLA's un-roping ablation** (arm `mla_w{64,16}_ours_unrope_cost`). |
+| `<model>_gc/` | The methods it is compared with, trained the same way: TransMLA, MHA2MLA, CARE (on the grouped-query models, arms `mla_w16_*_native_*`, each following its authors' released code on a grouped-query layer), and **$A_p^{\mathrm{mean}}$, GaugeMLA's un-roping ablation** (arm `mla_w{64,16}_ours_unrope_cost`). |
 
 ## GaugeMLA and $A_p^{\mathrm{mean}}$
 
@@ -30,9 +30,12 @@ Every run in both folders was trained the same way:
 
 - `kl_standin_50m/<model>/G<G>.jsonl` and `<model>_gc/runs/<stamp>/kd_*_<branch>_s42.jsonl` have one row per
   evaluation point: KL to the teacher and to the original model with standard errors and per-document values, CE,
-  the task battery at selected points, and gradient norms. On the grouped-query models CARE was trained after the
-  other methods, so its runs have a stamp of their own (`<model>_gc/runs/grid-<model>_cg-…/`), and its
-  initialisation's record is `<model>_gc/init/_cells_care.json`.
+  the task battery at selected points, and gradient norms. On the grouped-query models TransMLA, MHA2MLA and CARE
+  were trained after $A_p^{\mathrm{mean}}$, so their runs have a stamp of their own
+  (`<model>_gc/runs/grid-<model>_nv-…/`), and their initialisation's record is `<model>_gc/init/_cells_native.json`.
+  The other stamp's `_manifest.json` and that initialisation's `_cells.json` also list the grid's earlier builds of
+  TransMLA and MHA2MLA on those models (`mla_w16_transmla_sigma`, `mla_w16_mha2mla_s2norm`), which the native
+  builds replace; their runs are not included.
 - Beside them are each run's manifest and reference, the t = 0 checkpoints' records (`init/`) and the saved models'
   configs (`models/`).
 - `kl_standin_50m/NAMES.txt` gives each model's G per budget (G = 4, 2, 1 is 25, 12.5, 6.25% on Pythia-410m) and the
@@ -70,19 +73,19 @@ Every run in both folders was trained the same way:
 |  | CARE | 5.043 | 0.486 | 4.058 | 0.409 | 3.314 | 0.387 |
 | SmolLM-360M | GaugeMLA | **3.989** | **1.305** | **2.802** | **0.763** | **1.686** | **0.544** |
 |  | $A_p^{\mathrm{mean}}$ (ablation) | 4.279 | 1.328 | 3.235 | 0.798 | 2.457 | 0.580 |
-|  | TransMLA | 4.319 | 1.696 | 3.954 | 1.034 | 3.605 | 0.744 |
-|  | MHA2MLA | 7.819 | 2.312 | 10.701 | 1.763 | 10.772 | 1.262 |
-|  | CARE | 4.314 | 1.676 | 3.953 | 1.032 | 3.604 | 0.743 |
+|  | TransMLA | 4.209 | 1.669 | 3.792 | 1.054 | 3.514 | 0.777 |
+|  | MHA2MLA | 7.602 | 2.041 | 8.100 | 1.476 | 9.313 | 1.056 |
+|  | CARE | 4.198 | 1.665 | 3.785 | 1.055 | 3.516 | 0.777 |
 | TinyLlama-1.1B | GaugeMLA | **4.401** | **0.859** | **3.576** | **0.523** | **2.931** | **0.371** |
 |  | $A_p^{\mathrm{mean}}$ (ablation) | 4.237 | 0.860 | 3.701 | 0.528 | 3.318 | 0.379 |
-|  | TransMLA | 4.898 | 1.022 | 4.299 | 0.620 | 4.172 | 0.452 |
-|  | MHA2MLA | 9.657 | 1.634 | 9.897 | 1.186 | 8.887 | 0.838 |
-|  | CARE | 4.900 | 1.022 | 4.298 | 0.623 | 4.167 | 0.454 |
-| Llama-3.2-1B | GaugeMLA | **5.837** | **0.789** | **3.678** | **0.590** | **2.180** | **0.479** |
+|  | TransMLA | 4.455 | 1.033 | 4.305 | 0.585 | 4.016 | 0.421 |
+|  | MHA2MLA | 7.844 | 1.410 | 7.976 | 0.929 | 6.908 | 0.661 |
+|  | CARE | 4.453 | 1.034 | 4.239 | 0.590 | 4.019 | 0.421 |
+| Llama-3.2-1B | GaugeMLA | 5.837 | **0.789** | **3.678** | **0.590** | **2.180** | **0.479** |
 |  | $A_p^{\mathrm{mean}}$ (ablation) | 5.711 | 0.802 | 4.833 | 0.601 | 3.974 | 0.491 |
-|  | TransMLA | 5.840 | 1.010 | 5.279 | 0.773 | 5.023 | 0.640 |
-|  | MHA2MLA | 7.533 | 1.381 | 6.560 | 1.086 | 5.328 | 0.864 |
-|  | CARE | 5.839 | 1.012 | 5.304 | 0.774 | 5.035 | 0.640 |
+|  | TransMLA | 5.569 | 0.993 | 5.158 | 0.766 | 5.106 | 0.640 |
+|  | MHA2MLA | 7.400 | 1.325 | 6.527 | 1.065 | 5.294 | 0.857 |
+|  | CARE | **5.553** | 0.995 | 5.079 | 0.768 | 5.143 | 0.639 |
 
 ### KL to the original model
 
@@ -112,18 +115,18 @@ Every run in both folders was trained the same way:
 |  | CARE | 4.817 | 0.303 | 3.831 | 0.224 | 3.083 | 0.201 |
 | SmolLM-360M | GaugeMLA | **3.598** | **0.944** | **2.405** | **0.397** | **1.282** | **0.175** |
 |  | $A_p^{\mathrm{mean}}$ (ablation) | 3.887 | 0.966 | 2.841 | 0.433 | 2.060 | 0.210 |
-|  | TransMLA | 3.928 | 1.338 | 3.564 | 0.671 | 3.211 | 0.379 |
-|  | MHA2MLA | 7.438 | 1.949 | 10.301 | 1.395 | 10.375 | 0.895 |
-|  | CARE | 3.923 | 1.318 | 3.563 | 0.669 | 3.211 | 0.379 |
+|  | TransMLA | 3.817 | 1.308 | 3.401 | 0.689 | 3.119 | 0.409 |
+|  | MHA2MLA | 7.212 | 1.679 | 7.701 | 1.112 | 8.905 | 0.691 |
+|  | CARE | 3.806 | 1.305 | 3.394 | 0.690 | 3.121 | 0.408 |
 | TinyLlama-1.1B | GaugeMLA | **4.166** | **0.674** | **3.343** | **0.339** | **2.696** | **0.189** |
 |  | $A_p^{\mathrm{mean}}$ (ablation) | 4.001 | 0.674 | 3.464 | 0.345 | 3.080 | 0.199 |
-|  | TransMLA | 4.664 | 0.834 | 4.061 | 0.436 | 3.935 | 0.269 |
-|  | MHA2MLA | 9.421 | 1.441 | 9.665 | 0.996 | 8.646 | 0.648 |
-|  | CARE | 4.666 | 0.834 | 4.061 | 0.439 | 3.931 | 0.270 |
-| Llama-3.2-1B | GaugeMLA | **5.484** | **0.481** | **3.323** | **0.285** | **1.824** | **0.176** |
+|  | TransMLA | 4.219 | 0.843 | 4.068 | 0.400 | 3.779 | 0.236 |
+|  | MHA2MLA | 7.608 | 1.219 | 7.741 | 0.741 | 6.672 | 0.473 |
+|  | CARE | 4.217 | 0.844 | 4.002 | 0.404 | 3.783 | 0.237 |
+| Llama-3.2-1B | GaugeMLA | 5.484 | **0.481** | **3.323** | **0.285** | **1.824** | **0.176** |
 |  | $A_p^{\mathrm{mean}}$ (ablation) | 5.359 | 0.493 | 4.483 | 0.295 | 3.623 | 0.190 |
-|  | TransMLA | 5.487 | 0.694 | 4.925 | 0.461 | 4.673 | 0.330 |
-|  | MHA2MLA | 7.175 | 1.061 | 6.207 | 0.767 | 4.972 | 0.551 |
-|  | CARE | 5.487 | 0.695 | 4.950 | 0.461 | 4.683 | 0.331 |
+|  | TransMLA | 5.217 | 0.678 | 4.804 | 0.453 | 4.754 | 0.330 |
+|  | MHA2MLA | 7.043 | 1.006 | 6.173 | 0.747 | 4.937 | 0.545 |
+|  | CARE | **5.202** | 0.680 | 4.726 | 0.454 | 4.790 | 0.329 |
 
 GaugeMLA is our method; $A_p^{\mathrm{mean}}$ is its un-roping ablation (the earlier GaugeMLA, which un-ropes by the mean rotation over the offsets), shown beside it and left out of the bolding. Bold is the lowest of GaugeMLA, TransMLA, MHA2MLA and CARE for that model, budget, time and KL. At t = 0, GaugeMLA and $A_p^{\mathrm{mean}}$ are the initialisation each run trained from; the paper reports the mean over five draws of $F_i$.

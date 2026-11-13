@@ -57,11 +57,11 @@ NAMES = {
     "mla_w64_ours_unrope_cost_klsi": "GaugeMLA, Σ = I",
     "mla_w16_ours_unrope_cost_klsi": "GaugeMLA, Σ = I",
     "mla_w64_transmla_sigma": "TransMLA",
-    "mla_w16_transmla_sigma": "TransMLA",
+    "mla_w16_transmla_native_sigma": "TransMLA",
     "mla_w64_mha2mla_s2norm": "MHA2MLA",
-    "mla_w16_mha2mla_s2norm": "MHA2MLA",
+    "mla_w16_mha2mla_native_s2norm": "MHA2MLA",
     "mla_w64_care_sigma": "CARE",
-    "mla_w16_care_sigma": "CARE",
+    "mla_w16_care_native_sigma": "CARE",
     "decoupled_optwide_fisher_sigma_dkr64": "Decoupled, KL objective",
     "pool": "GQA (pool)",
     "gauge3B": "GQA + optimal gauge",
@@ -71,7 +71,7 @@ NAMES = {
     "optwide": "Joint key, joint value subspace",
     "mha": "MHA control"
 }
-ORDER = ["pool", "gauge3B", "procrustes_simk", "procrustes", "optimal", "optwide", "decoupled_optwide_fisher_sigma_dkr64", "mla_w64_ours_unrope_cost_kl", "mla_w64_ours_unrope_cost", "mla_w64_transmla_sigma", "mla_w64_mha2mla_s2norm", "mla_w64_care_sigma", "mla_w16_care_sigma", "mha"]
+ORDER = ["pool", "gauge3B", "procrustes_simk", "procrustes", "optimal", "optwide", "decoupled_optwide_fisher_sigma_dkr64", "mla_w64_ours_unrope_cost_kl", "mla_w64_ours_unrope_cost", "mla_w64_transmla_sigma", "mla_w64_mha2mla_s2norm", "mla_w64_care_sigma", "mla_w16_transmla_native_sigma", "mla_w16_mha2mla_native_s2norm", "mla_w16_care_native_sigma", "mha"]
 SOURCE_CACHE = {"p410m_gc": 2048, "p410m_gc5m": 2048, "p410m_klgc": 2048, "p410m_kl5m": 2048}
 RESULTS = {
     "p410m_gc": "p410m_gc/runs",
