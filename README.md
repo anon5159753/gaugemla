@@ -7,7 +7,7 @@ initialisation methods for KV cache compression perform better or worse dependin
 need longer or shorter uptraining to recover the original model's ability. We introduce GaugeMLA, an initialisation
 that uses this gauge freedom to minimise the change in a trained model's output when converting to Multi-head Latent
 Attention (MLA). Our analysis reveals that the optimal shared map for tying or merging key and value heads is not the
-mean pool but is determined by the gauge-invariant query–key and output–value circuits. GaugeMLA leverages the KL
+mean pool but is set by the gauge-invariant query–key and output–value circuits. GaugeMLA leverages the KL
 divergence to the original model as a consistent focus which motivates both how to normalise the keys against the
 values and how to un-rope rotary key rows, for a strong, gauge-invariant initialisation. On seven models and three KV
 cache budgets, GaugeMLA provides a better initialisation than other MLA conversion methods in almost all cases, an
@@ -17,8 +17,8 @@ advantage that persists through knowledge distillation to the final model.
 
 Figure 1: Pythia-410m regauged on its keys and values in two ways that leave its outputs unchanged
 ([the regauge test](experiments/regauge_test/) defines both), then converted at 6.25%, 12.5% and 25% of its KV cache.
-Left, KL to the original model, lower is better. Right, the change as a percentage. GaugeMLA's relative change under
-a regauge is small compared to the other methods, which get better or worse.
+Left, KL to the original model, lower is better. Right, the change as a percentage of the unregauged KL. GaugeMLA's
+relative change under a regauge is small compared to the other methods, which get better or worse.
 
 ## The gauge symmetry of attention
 
@@ -98,16 +98,19 @@ passages; TransMLA, MHA2MLA and CARE measure their statistics on the same passag
 dominate it, chiefly each passage's first token, which becomes an attention sink with an extreme gradient. $\Sigma$
 keeps every token.
 
-GaugeMLA chooses the latent, the gauges and which rotary rows to un-rope by this objective. The rotary planes that do
-not fit in the shared rotary width $d_h^{R}$ are un-roped: plane $p$ of head $i$ has its rotation, which depends on
-the offset $\delta$, replaced by the fixed map that minimises an approximation of the KL objective,
+GaugeMLA chooses the latent and the gauges by this objective, and un-ropes by it too. The rotary rows that do not fit
+in the shared rotary width $d_h^{R}$ are un-roped: plane $p$ of head $i$ has its rotation, which depends on the offset
+$\delta$, replaced by the fixed map that approximately minimises the KL objective,
 
 $$R(\theta_p \delta) \;\longmapsto\; A^{\mathrm{KL}}_{ip} = \left(F^{aa}_{ip}\right)^{-1} F^{ab}_{ip},$$
 
-where $F^{aa}_{ip}$ is the second moment of the gradient at the plane's keys with the rotation removed, and
-$F^{ab}_{ip}$ its cross moment with the gradient itself. The approximation keeps the KL objective to second order and
-drops the cross terms between keys at different positions. The un-roped rows are initialised as
+where $F^{aa}_{ip}$ is the second moment of the gradient at the plane's keys, computed as if the rotation were removed,
+and $F^{ab}_{ip}$ the cross moment of that gradient with the actual one. The approximation keeps the KL objective to
+second order and drops the cross terms between keys at different positions. The un-roped rows are initialised as
 $(W_{K_i}^{\mathrm{nr}})_p = A^{\mathrm{KL}}_{ip} (W_{K_i}^{\mathrm{rot}})_p$, with $(\cdot)_p$ plane $p$'s two rows.
+Which rows stay in the rotary key is a heuristic: each rotary direction is scored by its energy under the KL
+objective times the share of that energy lost by replacing its plane's rotation with the mean over the offsets, and
+the highest-scoring directions stay rotary.
 
 The paper ablates two parts of this initialisation at conversion. The un-roping is replaced by $A_p^{\mathrm{mean}}$,
 the mean rotation of plane $p$ over the causal offsets (the earlier GaugeMLA), and $\Sigma$ is set to $I$. The next
