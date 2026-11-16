@@ -166,6 +166,9 @@ for c in ("identity", "kvs", "kvd"):
     launch.run("p410m_rgkv_gqa", "run", REGAUGE=c)
 ```
 
+Then `launch.regauge_table()` (the notebook's step 3) prints the scored numbers in the layout of the paper's Tables 4
+and 5, beside the values the paper prints.
+
 Everything is written under `MyDrive/gaugemla/regauge_test/p410m_rgkv/` and
 `MyDrive/gaugemla/regauge_test/p410m_rgkv_gqa/`. Each condition gets its own folder with its check, its fits and its
 checkpoints, and the scored rows go in `runs/`. The 51 checkpoints take about 85 GB (42 for the MLA methods, 9 for
