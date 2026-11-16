@@ -360,7 +360,8 @@ LADDERS = {5000000: {'battery': [0, 5000000],
 if TEST_TOKENS:
     if TEST_TOKENS < _TOKENS_PER_STEP:
         raise RuntimeError(f"TEST_TOKENS = {TEST_TOKENS:,} is under one optimiser step ({_TOKENS_PER_STEP:,} tokens)")
-    LADDERS[MAX_TOKENS] = {"kl": [0, MAX_TOKENS // 2, MAX_TOKENS], "battery": [0, MAX_TOKENS]}
+    if MAX_TOKENS not in LADDERS:   # a length the paper trained keeps the paper's schedule
+        LADDERS[MAX_TOKENS] = {"kl": [0, MAX_TOKENS // 2, MAX_TOKENS], "battery": [0, MAX_TOKENS]}
 EVAL_AT_TOKENS = sorted(set(LADDERS[MAX_TOKENS]["kl"]) | {WARMUP_END_TOKENS})
 BATTERY_AT_TOKENS = list(LADDERS[MAX_TOKENS]["battery"])
 BATTERY_PHASE = {0: "endpoint", MAX_TOKENS: "endpoint"}

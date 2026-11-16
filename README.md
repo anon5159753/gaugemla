@@ -15,10 +15,10 @@ advantage that persists through knowledge distillation to the final model.
 
 ![Figure 1: Pythia-410m regauged on its keys and values, then converted](docs/figure1.png)
 
-Figure 1: Pythia-410m regauged on its keys and values in two ways that leave its outputs unchanged
-([the regauge test](experiments/regauge_test/) defines both), then converted at 6.25%, 12.5% and 25% of its KV cache.
-Left, KL to the original model, lower is better. Right, the change as a percentage of the unregauged KL. GaugeMLA's
-relative change under a regauge is small compared to the other methods, which get better or worse.
+Figure 1: Pythia-410m's KL to the uncompressed original model when regauged before initialisation, at 6.25%, 12.5%
+and 25% of its KV cache ([the regauge test](experiments/regauge_test/)). Both regauges leave the original model
+unchanged. Left, the KL, lower is better. Right, its change as a percentage of the unregauged KL. GaugeMLA's relative
+change under a regauge is small compared to the other methods, which get better or worse.
 
 ## The gauge symmetry of attention
 
@@ -97,25 +97,6 @@ passages; TransMLA, MHA2MLA and CARE measure their statistics on the same passag
 1% of tokens with the largest gradient at the key and value projections are left out of $F_i$'s average: a few tokens
 dominate it, chiefly each passage's first token, which becomes an attention sink with an extreme gradient. $\Sigma$
 keeps every token.
-
-GaugeMLA chooses the latent and the gauges by this objective, and un-ropes by it too. The rotary rows that do not fit
-in the shared rotary width $d_h^{R}$ are un-roped: plane $p$ of head $i$ has its rotation, which depends on the offset
-$\delta$, replaced by the fixed map that approximately minimises the KL objective,
-
-$$R(\theta_p \delta) \;\longmapsto\; A^{\mathrm{KL}}_{ip} = \left(F^{aa}_{ip}\right)^{-1} F^{ab}_{ip},$$
-
-where $F^{aa}_{ip}$ is the second moment of the gradient at the plane's keys, computed as if the rotation were removed,
-and $F^{ab}_{ip}$ the cross moment of that gradient with the actual one. The approximation keeps the KL objective to
-second order and drops the cross terms between keys at different positions. The un-roped rows are initialised as
-$(W_{K_i}^{\mathrm{nr}})_p = A^{\mathrm{KL}}_{ip} (W_{K_i}^{\mathrm{rot}})_p$, with $(\cdot)_p$ plane $p$'s two rows.
-Which rows stay in the rotary key is a heuristic: each rotary direction is scored by its energy under the KL
-objective times the share of that energy lost by replacing its plane's rotation with the mean over the offsets, and
-the highest-scoring directions stay rotary.
-
-The paper ablates two parts of this initialisation at conversion. The un-roping is replaced by $A_p^{\mathrm{mean}}$,
-the mean rotation of plane $p$ over the causal offsets (the earlier GaugeMLA), and $\Sigma$ is set to $I$. The next
-token drawn for $F_i$ is random, so the paper reports each t = 0 result of GaugeMLA and its ablations as the mean over
-five draws.
 
 ## Results
 

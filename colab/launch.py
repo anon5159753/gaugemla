@@ -181,6 +181,9 @@ def kl_table(tag, test_tokens=0):
           "print GaugeMLA's and A_p^mean's t = 0 as the mean over five draws of the Fisher's labels (five label "
           "seeds, this one the first); the other methods' t = 0 and every 50M value are these runs' own.")
     if test_tokens and mine:
+        full = {max(r["tokens"] for r in rs) for rs in ref.values()} == {test_tokens}
         print(f"This was a test run of {test_tokens:,} training tokens: its t = 0 should be close to the paper's t = 0 "
               "above (the fits are redone on this machine, so expect differences in the last digits), while its end "
-              "is after a few optimiser steps and is not comparable with the paper's 50M.")
+              + ("is at the paper's length, on the paper's schedule, so it is comparable with the paper's end too "
+                 "(the training also runs on this machine, so expect small differences)." if full else
+                 "is after a few optimiser steps and is not comparable with the paper's 50M."))
