@@ -127,7 +127,7 @@ GaugeMLA's initialisation fits the true Fisher with each fit document's top 1% o
 - **A Google Colab Pro+ account.**
 - **A Hugging Face token**, added as the Colab secret `HF_TOKEN` with notebook access.
 - **Initialisation: a High-RAM CPU runtime** (Runtime → Change runtime type → CPU, High-RAM). It uses no GPU.
-- **Training: an A100 GPU runtime with High-RAM.**
+- **Training: an A100 GPU runtime.**
 - **Free Google Drive space for the checkpoints.** Every checkpoint is kept on Drive, about 1.6 GB each in fp32.
   - GaugeMLA alone (`pythia410m_gaugemla.ipynb`): **at least 15 GB free.** Its 3 t = 0 checkpoints and 3 trained
     models take about 10 GB.
@@ -161,14 +161,14 @@ take much longer to initialise.
 | notebook | runtime | what it does |
 |---|---|---|
 | **GaugeMLA only** | | |
-| `colab/pythia410m_gaugemla.ipynb` | A100, High-RAM | GaugeMLA's t = 0 checkpoints, then 50M-token training of its three branches (25, 12.5, 6.25%) |
+| `colab/pythia410m_gaugemla.ipynb` | A100 | GaugeMLA's t = 0 checkpoints, then 50M-token training of its three branches (25, 12.5, 6.25%) |
 | **The full experiments** | | |
 | `colab/pythia410m_init.ipynb` | CPU, High-RAM | the t = 0 checkpoints of every method, in four cells: GaugeMLA, then TransMLA, MHA2MLA, CARE and $A_p^{\mathrm{mean}}$ (the 50M grid); GaugeMLA, then the other constructions (the 5M grid) |
-| `colab/pythia410m_train_50M.ipynb` | A100, High-RAM | 50M-token training: GaugeMLA's 3 branches in one cell, the 12 of TransMLA, MHA2MLA, CARE and $A_p^{\mathrm{mean}}$ in the next; saves each final model |
-| `colab/pythia410m_train_5M.ipynb` | A100, High-RAM | 5M-token training: GaugeMLA's 3 branches in one cell, the other constructions' 18 (the MHA control included) in the next |
+| `colab/pythia410m_train_50M.ipynb` | A100 | 50M-token training: GaugeMLA's 3 branches in one cell, the 12 of TransMLA, MHA2MLA, CARE and $A_p^{\mathrm{mean}}$ in the next; saves each final model |
+| `colab/pythia410m_train_5M.ipynb` | A100 | 5M-token training: GaugeMLA's 3 branches in one cell, the other constructions' 18 (the MHA control included) in the next |
 | **The regauge test** | | |
 | `colab/pythia410m_regauge.ipynb` | CPU, High-RAM, then A100 | the regauge test, the paper's Tables 4 and 5 (at least 75 GB free on Drive): see [`experiments/regauge_test/README.md`](experiments/regauge_test/README.md) |
-| `colab/pythia410m_regauge_gqa.ipynb` | A100, High-RAM (the build step uses no GPU) | the regauge test's GQA row: the mean pool (`pool`) under the same two gauges, 9 cells at t = 0, the GQA row of Figure 1 and of Table 5 (at least 20 GB free on Drive): see the same README |
+| `colab/pythia410m_regauge_gqa.ipynb` | A100 (the build step uses no GPU) | the regauge test's GQA row: the mean pool (`pool`) under the same two gauges, 9 cells at t = 0, the GQA row of Figure 1 and of Table 5 (at least 20 GB free on Drive): see the same README |
 
 Each notebook mounts Google Drive, clones only the parts of the repository it uses, and starts that experiment's
 script. Everything is written under `MyDrive/gaugemla/`: `kl_standin_50m/p410m_klgc/` (GaugeMLA) and
