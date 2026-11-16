@@ -134,9 +134,8 @@ GaugeMLA's initialisation fits the true Fisher with each fit document's top 1% o
   - The full experiments (`pythia410m_init.ipynb` and the two training notebooks): **at least 90 GB free.** The 36
     t = 0 checkpoints take about 60 GB (the 50M grid's 15, and 21 for the 5M grid, 3 of them copies of GaugeMLA's).
     The 15 trained 50M models take about 25 GB more. The 5M training saves no model.
-  - The regauge test (`pythia410m_regauge.ipynb`): **at least 75 GB free.** Its 42 checkpoints take about 70 GB.
-  - The regauge test's GQA kit (`pythia410m_regauge_gqa.ipynb`): **at least 20 GB free.** Its 9 checkpoints take
-    about 15 GB.
+  - The regauge test (`pythia410m_regauge.ipynb`): **at least 95 GB free.** Its 51 checkpoints take about 85 GB
+    (42 for the MLA methods, 9 for GQA's mean pool).
 
   A quick test (`TEST_TOKENS = 50000`) saves its trained models too, under `runs/<stamp>-test50000/models/`, so delete
   that folder once you have checked the test. GaugeMLA's 15 GB has room for its test as well.
@@ -153,8 +152,8 @@ is built and trained with the baselines.
 
 **To run GaugeMLA, use `colab/pythia410m_gaugemla.ipynb` only.** It builds GaugeMLA's three t = 0 checkpoints and
 trains them, and nothing else. The init and two training notebooks are for the complete experiments, GaugeMLA beside
-every method it is compared with, and `pythia410m_regauge.ipynb` runs the regauge test (`pythia410m_regauge_gqa.ipynb`
-its GQA mean-pool row). The complete experiments
+every method it is compared with, and `pythia410m_regauge.ipynb` runs the regauge test, GQA's mean-pool row
+included. The complete experiments
 build every method's checkpoints (15 for the 50M grid and 21 more for the 5M grid, against GaugeMLA's 3), so they
 take much longer to initialise.
 
@@ -167,8 +166,7 @@ take much longer to initialise.
 | `colab/pythia410m_train_50M.ipynb` | A100 | 50M-token training: GaugeMLA's 3 branches in one cell, the 12 of TransMLA, MHA2MLA, CARE and $A_p^{\mathrm{mean}}$ in the next; saves each final model |
 | `colab/pythia410m_train_5M.ipynb` | A100 | 5M-token training: GaugeMLA's 3 branches in one cell, the other constructions' 18 (the MHA control included) in the next |
 | **The regauge test** | | |
-| `colab/pythia410m_regauge.ipynb` | CPU, High-RAM, then A100 | the regauge test, the paper's Tables 4 and 5 (at least 75 GB free on Drive): see [`experiments/regauge_test/README.md`](experiments/regauge_test/README.md) |
-| `colab/pythia410m_regauge_gqa.ipynb` | A100 (the build step uses no GPU) | the regauge test's GQA row: the mean pool (`pool`) under the same two gauges, 9 cells at t = 0, the GQA row of Figure 1 and of Table 5 (at least 20 GB free on Drive): see the same README |
+| `colab/pythia410m_regauge.ipynb` | CPU, High-RAM, then A100 | the regauge test, the paper's Figure 1 and Tables 4 and 5: MHA2MLA, TransMLA, CARE and GaugeMLA, then GQA's mean pool (`pool`) under the same two gauges (at least 95 GB free on Drive): see [`experiments/regauge_test/README.md`](experiments/regauge_test/README.md) |
 
 Each notebook mounts Google Drive, clones only the parts of the repository it uses, and starts that experiment's
 script. Everything is written under `MyDrive/gaugemla/`: `kl_standin_50m/p410m_klgc/` (GaugeMLA) and
@@ -180,7 +178,7 @@ folders, so mount the same Google account in every notebook; the original model,
 downloaded from the Hugging Face Hub in each session. Finished checkpoints and branches are skipped, so a rerun
 continues where the last session stopped.
 
-Set `TEST_TOKENS = 50000` for a quick test. The experiments in the paper trained on 50M tokens (5M for the 5M grid),
+Set `TEST_TOKENS = 50000` for a quick test (`TEST_TOKENS = 2000000` is enough to see training lower the KL). The experiments in the paper trained on 50M tokens (5M for the 5M grid),
 with more powerful computing resources.
 
 ## Data (`results/`)

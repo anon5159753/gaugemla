@@ -144,13 +144,16 @@ seed kit's scripts, one condition per process), and `plan.py`
 
 ## Running it
 
-[`colab/pythia410m_regauge.ipynb`](../../colab/pythia410m_regauge.ipynb) runs the two steps below. Or open any
-notebook in `colab/` and run its Setup cell, which mounts Drive and clones this repository. On a High-RAM CPU
+[`colab/pythia410m_regauge.ipynb`](../../colab/pythia410m_regauge.ipynb) runs both kits in the two steps below. Or
+open any notebook in `colab/` and run its Setup cell, which mounts Drive and clones this repository. On a High-RAM CPU
 runtime, build the initialisations, `identity` first:
 
 ```python
 for c in ("identity", "kvs", "kvd", "kvs_xf", "kvd_xf"):
     launch.run("p410m_rgkv", "init", DRY_RUN=False, REGAUGE=c)
+# GQA's mean pool
+for c in ("identity", "kvs", "kvd"):
+    launch.run("p410m_rgkv_gqa", "init", DRY_RUN=False, REGAUGE=c)
 ```
 
 Then score them on an A100 GPU runtime:
@@ -158,18 +161,18 @@ Then score them on an A100 GPU runtime:
 ```python
 for c in ("identity", "kvs", "kvd", "kvs_xf", "kvd_xf"):
     launch.run("p410m_rgkv", "run", REGAUGE=c)
+# GQA's mean pool
+for c in ("identity", "kvs", "kvd"):
+    launch.run("p410m_rgkv_gqa", "run", REGAUGE=c)
 ```
 
-Everything is written under `MyDrive/gaugemla/regauge_test/p410m_rgkv/`. Each condition gets its own folder with its
-check, its fits and its checkpoints, and the scored rows go in `runs/`. The 42 checkpoints take about 70 GB, so have at
-least 75 GB free on Google Drive.
+Everything is written under `MyDrive/gaugemla/regauge_test/p410m_rgkv/` and
+`MyDrive/gaugemla/regauge_test/p410m_rgkv_gqa/`. Each condition gets its own folder with its check, its fits and its
+checkpoints, and the scored rows go in `runs/`. The 51 checkpoints take about 85 GB (42 for the MLA methods, 9 for
+GQA's mean pool), so have at least 95 GB free on Google Drive.
 These are the scripts the paper's numbers come from, converted to the Colab form of the other kits.
 
-The GQA kit runs the same two steps from
-[`colab/pythia410m_regauge_gqa.ipynb`](../../colab/pythia410m_regauge_gqa.ipynb), with `p410m_rgkv_gqa` in place of
-`p410m_rgkv` and the three conditions `("identity", "kvs", "kvd")`, `identity` first (its run writes the identity
-check that `kvs` and `kvd` require), on one GPU runtime: its build step fits nothing (the mean pool is closed-form
-from the regauged weights, so the init is the gate and three builds per condition, on the runtime's CPU, minutes per
-condition; no GPU is used) and the scoring step follows on the same runtime. The scoring stops with a message naming
-the build step if a condition's checkpoints are not on Drive. It writes under
-`MyDrive/gaugemla/regauge_test/p410m_rgkv_gqa/`; its 9 checkpoints take about 15 GB, so have at least 20 GB free.
+The GQA kit's build fits nothing: the mean pool is closed-form from the regauged weights, so its init is the gate and
+three builds per condition, minutes per condition on the runtime's CPU, with no GPU. Its `identity` run writes the
+identity check that `kvs` and `kvd` require, and its scoring stops with a message naming the build step if a
+condition's checkpoints are not on Drive.
