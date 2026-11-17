@@ -1,12 +1,10 @@
 # The regauge test
 
-A regauge changes a trained model's key and value weights but not the model. Since the model has not changed, a KV
-cache compression method should give the same initialisation after any regauge. This test regauges Pythia-410m,
-converts the regauged checkpoint with each method, and measures which initialisations move. The numbers are the
-paper's Tables 4 and 5, reproduced below. This folder holds the code that produced them: `p410m_rgkv/` for the four
-MLA methods and the uncompressed rows, and `p410m_rgkv_gqa/`, which puts GQA's mean pool under the same two gauges
-for the GQA row of the paper's Figure 1 and Table 5 (see [The GQA mean pool](#the-gqa-mean-pool-p410m_rgkv_gqa)
-below). The release ships no data for either.
+A regauge changes a trained model's key and value weights but not the model, so a KV cache compression method should
+give the same initialisation after any regauge. This test regauges Pythia-410m, converts the regauged checkpoint with
+each method, and measures which initialisations move: the paper's Tables 4 and 5, reproduced below. `p410m_rgkv/`
+covers the four MLA methods and the uncompressed rows, and `p410m_rgkv_gqa/` GQA's mean pool. The release ships the
+code, not the data.
 
 ## The gauge
 
@@ -17,25 +15,23 @@ applied as
 
 $$W_{Q_i} \mapsto \Omega_i^{-\top} W_{Q_i}, \qquad W_{K_i} \mapsto \Omega_i W_{K_i}, \qquad W_{V_i} \mapsto \Gamma_i W_{V_i}, \qquad W_{O_i} \mapsto W_{O_i} \Gamma_i^{-1}.$$
 
-The query, key and value biases are regauged with their weights. The query–key circuit
-$M_i = W_{Q_i}^\top W_{K_i}$ and the output–value circuit $N_i = W_{O_i} W_{V_i}$ are unchanged, and so is the model's
-output.
+The biases are regauged with their weights. The circuits $M_i = W_{Q_i}^\top W_{K_i}$ and $N_i = W_{O_i} W_{V_i}$ are
+unchanged, and so is the model's output.
 
-With rotary positional embeddings, the logit between positions $m$ and $n$ is
-$x_m W_{Q_i}^\top R_\delta W_{K_i} x_n^\top$ with $\delta = n - m$. The key gauge must therefore commute with every
-rotation, $\Omega_i R_\delta = R_\delta \Omega_i$. Pythia-410m has $H = 16$ heads per layer with $d_k = d_v = 64$, and
-RoPE acts on $r = 16$ key rows. Each key head therefore has $h = 8$ rotary planes and $d_k - r = 48$ non-rotary rows,
-and a key gauge has the form
+With rotary positional embeddings the logit between positions $m$ and $n$ is $x_m W_{Q_i}^\top R_\delta W_{K_i} x_n^\top$
+with $\delta = n - m$, so the key gauge must commute with every rotation, $\Omega_i R_\delta = R_\delta \Omega_i$.
+Pythia-410m has $H = 16$ heads per layer with $d_k = d_v = 64$, and RoPE acts on $r = 16$ key rows: each key head has
+$h = 8$ rotary planes and $d_k - r = 48$ non-rotary rows, and a key gauge has the form
 
 $$\Omega_i = \mathrm{diag}\left(\alpha_1, \dots, \alpha_h, \eta\right),$$
 
-where each $\alpha_p$ is a $2 \times 2$ block that commutes with the rotations of plane $p$ and acts on both of its
-rows, and $\eta \in \mathrm{GL}(d_k - r)$ acts on the non-rotary rows. The values carry no rotation, so $\Gamma_i$ is
-any invertible matrix.
+where each $\alpha_p$ is a $2 \times 2$ block that commutes with the rotations of plane $p$, and
+$\eta \in \mathrm{GL}(d_k - r)$ acts on the non-rotary rows. The values carry no rotation, so $\Gamma_i$ is any
+invertible matrix.
 
 ## The two gauges used
 
-Both gauges are the same in every layer. Head $i$ is scaled by $c_i = i$, for $i = 1, \dots, 16$.
+Both are the same in every layer, with head $i$ scaled by $c_i = i$, for $i = 1, \dots, 16$.
 
 1. A per-head scalar (`kvs`):
    $$\alpha_p = c_i I_2, \qquad \eta = c_i I_{48}, \qquad \Gamma_i = c_i I_{64}, \qquad \text{so } \Omega_i = c_i I_{64}.$$
@@ -44,23 +40,21 @@ Both gauges are the same in every layer. Head $i$ is scaled by $c_i = i$, for $i
 
 ## What the test does
 
-The test runs five conditions, one process each, with `identity` first.
+Five conditions, one process each, `identity` first:
 
-- `identity`, `kvs` and `kvd` are the unregauged checkpoint and the two regaugings of it. Each regauged checkpoint is
-  first checked to compute the same function as the original on the 64 calibration passages. The mean total variation
-  between its next-token distributions and the original's must be at most 3 times the largest that one float32
-  rounding of the original's attention weights causes, or the run stops. Every statistic is then measured
-  afresh on the regauged checkpoint, as a user converting it would. MHA2MLA, TransMLA, CARE and GaugeMLA are built
-  from it at 25%, 12.5% and 6.25% of the KV cache, at $d_h^R = 64$.
-- `kvs_xf` and `kvd_xf` build GaugeMLA alone, with $F_i$ carried over from the unregauged checkpoint:
+- `identity`, `kvs` and `kvd`: the unregauged checkpoint and its two regaugings. A regauged checkpoint must compute the
+  same function as the original on the 64 calibration passages (mean total variation of the next-token distributions
+  at most 3 times what one float32 rounding of the attention weights causes), or the run stops. Every statistic is
+  then measured afresh, as a user converting it would, and MHA2MLA, TransMLA, CARE and GaugeMLA are built at 25%,
+  12.5% and 6.25% of the KV cache, at $d_h^R = 64$.
+- `kvs_xf` and `kvd_xf`: GaugeMLA alone, with $F_i$ carried over from the unregauged checkpoint,
   $F_i \mapsto \Omega_i^{-\top} F_i\, \Omega_i^{-1}$ at a key map and $\Gamma_i^{-\top} F_i\, \Gamma_i^{-1}$ at a value
-  map. It therefore leaves out the same 1% of tokens as the unregauged build.
+  map, so it leaves out the same 1% of tokens.
 
-That is 42 initialisations in all, 12 per primary condition and 3 per carried-over one. The run scores each condition's
-initialisations at conversion against the teacher (Pythia-2.8B) and the original model, on the same 64 held-out
-passages and with full float32 matrix products. For `identity`, `kvs` and `kvd` it also scores the regauged model
-itself, uncompressed (Table 4). With $p_O$ the original's next-token distribution, $p_T$ the teacher's and $p_O'$ the
-regauged checkpoint's, Table 4 gives
+The 42 initialisations are scored at conversion against the teacher (Pythia-2.8B) and the original model on 64
+held-out passages, with full float32 matrix products. For `identity`, `kvs` and `kvd` the regauged model itself is
+also scored, uncompressed (Table 4). With $p_O$, $p_T$ and $p_O'$ the original's, the teacher's and the regauged
+checkpoint's next-token distributions,
 
 $$\mathrm{KL}_{\mathrm{original}} = \mathrm{KL}\left(p_O \,\|\, p_O'\right), \qquad \mathrm{KL}_{\mathrm{teacher}} = \mathrm{KL}\left(p_T \,\|\, p_O'\right).$$
 
@@ -90,63 +84,42 @@ $$\mathrm{KL}_{\mathrm{original}} = \mathrm{KL}\left(p_O \,\|\, p_O'\right), \qq
 The regauged checkpoints are the same model as the original (Table 4). TransMLA and CARE get worse under both gauges
 at every budget. MHA2MLA gets worse at 12.5% and 25% and better at 6.25%, so a regauge can improve a heuristic
 initialisation as well as worsen it, and nothing in the method says which. GaugeMLA's objective is gauge invariant,
-and GaugeMLA moves little. Measured afresh, its $F_i$ leaves out tokens chosen by a gradient that the regauge
-rescales. With $F_i$ carried over, so that it leaves out the same tokens, it does not move. GQA's mean pool gets
-worse under both gauges at every budget, and by the same amount under each, as predicted below.
+and GaugeMLA moves little: measured afresh, its $F_i$ leaves out tokens chosen by a gradient that the regauge
+rescales, and with $F_i$ carried over it does not move. GQA's mean pool gets worse under both gauges at every budget,
+by the same amount under each, as predicted below.
 
 ## The code (`p410m_rgkv/`)
 
-- `regauge_gauges.py` defines the gauges and the checks.
-  - `GAUGES` holds one entry per gauge (`COUNT_UP` is $c_i = i$), and `CONDITIONS` the five conditions.
-  - `omegas` and `gammas` give $\Omega_i$ and $\Gamma_i$ for every layer and head, and `apply` regauges a loaded model
-    in place, weights and biases.
-  - `floor` and `gate` are the logits check. `install_loader` makes every later load of the original model in the
-    process a load of the regauged one.
-  - `transfer_fisher` carries $F_i$ over for the `_xf` conditions. `save_full_cache` and `load_full_cache` keep the
-    regauged model for the uncompressed row.
-- `p410m_rgkv_init.py` and `p410m_rgkv_run.py` are the scripts of the GaugeMLA seed kit
-  (`kl_standin_ablation/p410m_urx1_kls/`), with the regauge built in. Each runs one condition, given by `REGAUGE`.
-- `plan.py` prints every initialisation and full-cache row, where each lands on Drive, and the two gauges on
-  Pythia-410m's geometry. It needs no model and no torch:
-  `python experiments/regauge_test/p410m_rgkv/plan.py`.
+- `regauge_gauges.py`: the gauges (`GAUGES`, with `COUNT_UP` for $c_i = i$) and the five `CONDITIONS`; `omegas` and
+  `gammas` give $\Omega_i$ and $\Gamma_i$ per layer and head, and `apply` regauges a loaded model in place; `floor`
+  and `gate` are the logits check, and `install_loader` makes every later load of the original a load of the regauged
+  model; `transfer_fisher` carries $F_i$ over, and `save_full_cache` and `load_full_cache` keep the regauged model for
+  the uncompressed row.
+- `p410m_rgkv_init.py` and `p410m_rgkv_run.py`: the GaugeMLA seed kit's scripts (`kl_standin_ablation/p410m_urx1_kls/`)
+  with the regauge built in, one condition per process, given by `REGAUGE`.
+- `plan.py` prints every initialisation and full-cache row, where each lands on Drive, and the gauges on
+  Pythia-410m's geometry, with no model and no torch: `python experiments/regauge_test/p410m_rgkv/plan.py`.
 
 ## The GQA mean pool (`p410m_rgkv_gqa/`)
 
-The test above converts the regauged checkpoint with the four MLA methods. `p410m_rgkv_gqa/` adds GQA's own
-construction, the mean pool (the arm `pool`: $W_{K_i}$, $b_{K_i}$, $W_{V_i}$ and $b_{V_i}$ averaged over each group
-of $H / G$ consecutive heads, queries and $W_{O_i}$ kept), for the GQA row of the paper's Figure 1 and Table 5. It
-uses the same two gauges, `kvs` and `kvd`, unchanged (the same `GAUGES` table), with `identity` as the control, and
-the same gate.
+`p410m_rgkv_gqa/` puts GQA's mean pool (the arm `pool`: $W_{K_i}$, $b_{K_i}$, $W_{V_i}$ and $b_{V_i}$ averaged over
+each group of $H / G$ consecutive heads, queries and $W_{O_i}$ kept) under the same two gauges and the same gate, for
+the GQA row of the paper's Figure 1 and Table 5. It has nine t = 0 cells: `identity`, `kvs` and `kvd` at $G = 4, 2, 1$
+(25%, 12.5% and 6.25%), scored as above. The pool reads no $F_i$, so there is no `_xf` condition, and no uncompressed
+row.
 
-- **Nine cells, t = 0 only.** Three conditions (`identity`, `kvs`, `kvd`), one process each, times three budgets:
-  $B = 512, 256, 128$, that is $G = 4, 2, 1$ groups, 25%, 12.5% and 6.25% of the KV cache. Each cell is scored
-  against the teacher and the original model on the same 64 held-out passages as `p410m_rgkv`, with full float32
-  matrix products. There is no `_xf` condition (the pool reads no $F_i$), no uncompressed row and no MLA method:
-  `p410m_rgkv` has those.
-- **The identity check.** The identity's three pool checkpoints are closed-form from the unregauged weights, so their
-  rows must reproduce an earlier run of the same construction on the same passages. At the end of the identity
-  process, `regauge_gauges.identity_check` compares them with the recorded reference
-  (`IDENTITY_POOL_REFERENCE`: KL to the teacher and to the original model per budget) and stops if either KL is more
-  than $10^{-3}$ off at any budget; `kvs` and `kvd` refuse to start (`require_identity_check`) until that check has
-  passed.
-- **Predicted, reported, never gated:** `kvs` and `kvd` give the same pool. Both are $c_i D$ with $D$ the same in
-  every head and commuting with the rotations, and $D$ cancels on both sides of the pooled scores and outputs, so the
-  two conditions' rows should agree to float32 rounding. They do: Table 5's two gauge columns are equal for GQA at
-  every budget.
-- **Results.** The nine rows are the GQA line of Table 5 above (the identity's KL to the original model and each
-  gauge's change against it) and the GQA row of the paper's Figure 1. As for `p410m_rgkv`, the release ships the code
-  and no data.
-
-Its files follow `p410m_rgkv/`'s: `regauge_gauges.py` (the same gauges and gate, plus the identity check; the
-full-cache and $F_i$-transfer code is removed), `p410m_rgkv_gqa_init.py` and `p410m_rgkv_gqa_run.py` (from the same
-seed kit's scripts, one condition per process), and `plan.py`
-(`python experiments/regauge_test/p410m_rgkv_gqa/plan.py` lists the nine initialisations and the identity references).
+- The identity's pool checkpoints are closed-form from the unregauged weights, so they must reproduce an earlier run
+  of the same construction: `regauge_gauges.identity_check` stops if either KL is more than $10^{-3}$ off
+  `IDENTITY_POOL_REFERENCE` at any budget, and `kvs` and `kvd` refuse to start until it has passed.
+- `kvs` and `kvd` give the same pool: both are $c_i D$ with $D$ shared by every head and commuting with the rotations,
+  and $D$ cancels in the pooled scores and outputs. Table 5's two gauge columns are equal for GQA at every budget.
+- Its files follow `p410m_rgkv/`'s, without the full-cache and $F_i$-transfer code;
+  `python experiments/regauge_test/p410m_rgkv_gqa/plan.py` lists the nine initialisations and the identity references.
 
 ## Running it
 
-[`colab/pythia410m_regauge.ipynb`](../../colab/pythia410m_regauge.ipynb) runs both kits in the two steps below. Or
-open any notebook in `colab/` and run its Setup cell, which mounts Drive and clones this repository. On a High-RAM CPU
-runtime, build the initialisations, `identity` first:
+[`colab/pythia410m_regauge.ipynb`](../../colab/pythia410m_regauge.ipynb) runs both kits. On a High-RAM CPU runtime,
+build the initialisations, `identity` first:
 
 ```python
 for c in ("identity", "kvs", "kvd", "kvs_xf", "kvd_xf"):
@@ -166,16 +139,10 @@ for c in ("identity", "kvs", "kvd"):
     launch.run("p410m_rgkv_gqa", "run", REGAUGE=c)
 ```
 
-Then `launch.regauge_table()` (the notebook's step 3) prints the scored numbers in the layout of the paper's Tables 4
-and 5, beside the values the paper prints.
+`launch.regauge_table()` (the notebook's step 3) then prints the numbers in the layout of the paper's Tables 4 and 5,
+beside the paper's.
 
-Everything is written under `MyDrive/gaugemla/regauge_test/p410m_rgkv/` and
-`MyDrive/gaugemla/regauge_test/p410m_rgkv_gqa/`. Each condition gets its own folder with its check, its fits and its
-checkpoints, and the scored rows go in `runs/`. The 51 checkpoints take about 85 GB (42 for the MLA methods, 9 for
-GQA's mean pool), so have at least 95 GB free on Google Drive.
-These are the scripts the paper's numbers come from, converted to the Colab form of the other kits.
-
-The GQA kit's build fits nothing: the mean pool is closed-form from the regauged weights, so its init is the gate and
-three builds per condition, minutes per condition on the runtime's CPU, with no GPU. Its `identity` run writes the
-identity check that `kvs` and `kvd` require, and its scoring stops with a message naming the build step if a
-condition's checkpoints are not on Drive.
+Everything is written under `MyDrive/gaugemla/regauge_test/<kit>/`, one folder per condition, with the scored rows in
+`runs/`. The 51 checkpoints take about 85 GB, so have at least 95 GB free on Google Drive. The GQA kit fits nothing,
+so its build takes minutes per condition, and its scoring stops if a condition's checkpoints are not on Drive. These
+are the scripts the paper's numbers come from, in the Colab form of the other kits.

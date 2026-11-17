@@ -1,45 +1,57 @@
 # results: the 50M training runs and GaugeMLA's task evaluation
 
 **Only `kl_standin_50m/` is GaugeMLA, our method.** The `mla_w{64,16}_ours_unrope_cost` runs in `<model>_gc/` are
-GaugeMLA without the KL stand-in: the ablation $A_p^{\mathrm{mean}}$, the earlier version of the method.
+its ablation $A_p^{\mathrm{mean}}$, GaugeMLA without the KL stand-in (the earlier version of the method).
 
 | folder | what it is |
 |---|---|
-| `kl_standin_50m/<model>/` | **GaugeMLA, the method of the paper**: arm `mla_w64_ours_unrope_cost_kl` on the multi-head models and `mla_w16_ours_unrope_cost_kl` on the grouped-query ones, trained for 50M tokens at 25, 12.5 and 6.25% of the KV cache. |
-| `kl_standin_eval/<model>/` | GaugeMLA's t = 0 initialisations and saved 50M models, and the original model, scored on the full splits of the ten tasks. |
-| `<model>_gc/` | The methods it is compared with, trained the same way: TransMLA, MHA2MLA, CARE (on the grouped-query models, arms `mla_w16_*_native_*`, each following its authors' released code on a grouped-query layer), and **$A_p^{\mathrm{mean}}$, GaugeMLA's un-roping ablation** (arm `mla_w{64,16}_ours_unrope_cost`). |
+| `kl_standin_50m/<model>/` | GaugeMLA (arm `mla_w64_ours_unrope_cost_kl`, or `mla_w16_ours_unrope_cost_kl` on the grouped-query models), trained for 50M tokens at 25, 12.5 and 6.25% of the KV cache |
+| `kl_standin_eval/<model>/` | GaugeMLA's t = 0 initialisations and saved 50M models, and the original model, on the full splits of the ten tasks |
+| `<model>_gc/` | TransMLA, MHA2MLA and CARE (arms `mla_w16_*_native_*` on the grouped-query models, each following its authors' released code), and the ablation $A_p^{\mathrm{mean}}$ (arm `mla_w{64,16}_ours_unrope_cost`) |
 
-## GaugeMLA and $A_p^{\mathrm{mean}}$
-
-Both un-rope the rotary planes that do not fit in the rotary width. They differ only in what replaces each plane's
-rotation:
-
-- **GaugeMLA** (`kl_standin_50m/`, the `_kl` in the arm name) uses the KL stand-in
-  $A^{\mathrm{KL}}_{ip} = (F^{aa}_{ip})^{-1} F^{ab}_{ip}$, the fixed map that minimises an approximation of the KL
-  objective for plane $p$ of head $i$.
-- **$A_p^{\mathrm{mean}}$** (`<model>_gc/`, arm `mla_w{64,16}_ours_unrope_cost`) uses the plane's average rotation over
-  the causal offsets, counting every query–key pair equally. It is the earlier version of GaugeMLA, now an ablation,
-  and not the method of the paper.
-
-Every run in both folders was trained the same way:
-- 50M tokens of knowledge distillation toward the same teacher, with the gradient clipped at 1.0;
-- the same evaluation documents and training stream;
-- GaugeMLA and $A_p^{\mathrm{mean}}$ initialised from the same $F_i$ and $\Sigma$ (Fisher label seed 20261014).
+Every run distils for 50M tokens toward the model's teacher, with the gradient clipped at 1.0, on the same evaluation
+documents and training stream. GaugeMLA and $A_p^{\mathrm{mean}}$ start from the same $F_i$ and $\Sigma$ (Fisher label
+seed 20261014) and differ only in how each un-roped rotary plane is read out: GaugeMLA by the KL stand-in
+$A^{\mathrm{KL}}_{ip} = (F^{aa}_{ip})^{-1} F^{ab}_{ip}$, $A_p^{\mathrm{mean}}$ by the plane's average rotation over
+the causal offsets.
 
 ## Files
 
 - `kl_standin_50m/<model>/G<G>.jsonl` and `<model>_gc/runs/<stamp>/kd_*_<branch>_s42.jsonl` have one row per
-  evaluation point: KL to the teacher and to the original model with standard errors and per-document values, CE,
-  the task battery at selected points, and gradient norms. On the grouped-query models TransMLA, MHA2MLA and CARE
-  were trained after $A_p^{\mathrm{mean}}$, so their runs have a stamp of their own
-  (`<model>_gc/runs/grid-<model>_nv-…/`), and their initialisation's record is `<model>_gc/init/_cells_native.json`.
-  The other stamp's `_manifest.json` and that initialisation's `_cells.json` also list the grid's earlier builds of
-  TransMLA and MHA2MLA on those models (`mla_w16_transmla_sigma`, `mla_w16_mha2mla_s2norm`), which the native
-  builds replace; their runs are not included.
-- Beside them are each run's manifest and reference, the t = 0 checkpoints' records (`init/`) and the saved models'
-  configs (`models/`).
-- `kl_standin_50m/NAMES.txt` gives each model's G per budget (G = 4, 2, 1 is 25, 12.5, 6.25% on Pythia-410m) and the
-  original file names. `kl_standin_eval/NAMES.txt` does the same for the evaluation files.
+  evaluation point: KL to the teacher and to the original model with standard errors and per-document values, CE, the
+  task battery at selected points, and gradient norms. Beside them are each run's manifest and reference, the t = 0
+  checkpoints' records (`init/`) and the saved models' configs (`models/`).
+- On the grouped-query models TransMLA, MHA2MLA and CARE were trained after $A_p^{\mathrm{mean}}$, under a stamp of
+  their own (`<model>_gc/runs/grid-<model>_nv-…/`, with the initialisation record `init/_cells_native.json`). The
+  other stamp's `_manifest.json` and `_cells.json` still list the earlier builds these replace
+  (`mla_w16_transmla_sigma`, `mla_w16_mha2mla_s2norm`), whose runs are not included.
+- `kl_standin_eval/<model>/` holds `G<G>_t0.json`, `G<G>_50M.json` and `original.json`.
+- `NAMES.txt` in `kl_standin_50m/` and `kl_standin_eval/` gives each model's G per budget (G = 4, 2, 1 is 25, 12.5,
+  6.25% on Pythia-410m) and the original file names.
+- Weights and fitted matrices (`.npz`) are not included; the initialisation scripts rebuild them.
+
+## Models and teachers
+
+| `<model>` | model | teacher |
+|---|---|---|
+| `olmo1b` | allenai/OLMo-1B-hf | allenai/OLMo-7B-hf (float32) |
+| `p410m` | EleutherAI/pythia-410m | EleutherAI/pythia-2.8b (float32) |
+| `slm1p6b` | stabilityai/stablelm-2-1_6b | stabilityai/stablelm-2-12b (float32) |
+| `q0p5b` | Qwen/Qwen1.5-0.5B | Qwen/Qwen1.5-4B (float32) |
+| `l3_1b` | meta-llama/Llama-3.2-1B | meta-llama/Llama-3.1-8B (float32) |
+| `tl1b` | TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T | meta-llama/Llama-2-7b-hf (float32) |
+| `sm360m` | HuggingFaceTB/SmolLM-360M | HuggingFaceTB/SmolLM2-1.7B (float32) |
+
+## The task battery
+
+The run rows log 13 tasks: the paper's ten (LAMBADA, ARC-Easy, ARC-Challenge, PIQA, HellaSwag, OpenBookQA,
+WinoGrande, BoolQ, SIQA and MMLU) and three synthetic probes the paper does not report:
+
+- `induction`: a random 48-token sequence followed by its first 4 tokens again; the model must continue it with the
+  next 8 tokens by copying.
+- `kv_synth_N50`: fifty lines of the form "The code for ⟨word⟩ is ⟨number⟩.", then one of the words again; the model
+  must recall its number.
+- `arith_1d`: eight worked examples of one-digit addition, then a new pair of digits to add.
 
 ## KL at conversion and after 50M tokens
 
