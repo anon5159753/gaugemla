@@ -72,6 +72,6 @@ other constructions, the task battery, scoring and logging.
 | `dt_mla_care_gqa` | CARE's solve on a grouped-query model's own key and value rows, called by `dt_mla_gqa_native`. |
 | `dt_mla_w16_transmla`, `dt_mla_w16_mha2mla`, `dt_mla_w16_care` | The earlier w = 16 builds of the three baselines, replaced by the native arms and run by no script here. |
 | `dt_mla_fit_llama` | Σ, the Fisher and MHA2MLA's statistics on LLaMA-family models. |
-| `gam_record` | Records the gauges of the "GQA + optimal gauge" construction. |
+| `gam_record` | Records the gauges of the "Mean pool + optimal gauge" construction. |
 | `dt_mla_ours_unrope_cost` | $A_p^{\mathrm{mean}}$ at the KL width: in the 5M kit's registry, but neither built by the notebooks nor reported in the paper. |
 | `dt_mla_w64_ours_unrope_cost_fi`, `dt_mla_w64_ours_unrope_cost_si`, `dt_mla_w64_ours_unrope_cost_ii`, `dt_mla_w16_ours_unrope_cost_fi`, `dt_mla_w16_ours_unrope_cost_si`, `dt_mla_w16_ours_unrope_cost_ii`, `dt_mla_ours_unrope_energy`, `dt_mla_w64_ours_unrope_energy`, `dt_mla_w16_ours_unrope_energy`, `dt_mla_w64_ours_unrope_tmcopy`, `dt_mla_w64_ours_unrope_tmcopy_fi`, `dt_mla_w64_ours_unrope_tmdamped`, `dt_mla_ours_eig`, `dt_mla_w64_ours` | Registered variants of the earlier GaugeMLA that none of this repository's experiments runs. |

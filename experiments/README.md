@@ -47,13 +47,13 @@ branches are skipped, so a rerun continues where the last one stopped.
 | `mla_w64_transmla_sigma`, `mla_w16_transmla_native_sigma` | TransMLA | TransMLA's conversion (Meng et al., 2025), from the same measured Σ. On the grouped-query models (`w16`) it follows TransMLA's released code: it compresses the stored key and value heads (each once, not its copies per query head), then is written into the per-head layout the other arms use. | `grad_clip/` |
 | `mla_w64_mha2mla_s2norm`, `mla_w16_mha2mla_native_s2norm` | MHA2MLA | MHA2MLA's conversion (Ji et al., 2025), which un-ropes the least-contributing key dimensions by its 2-norm criterion. On the grouped-query models (`w16`) it follows MHA2MLA's released code: dimensions are ranked per stored KV head, each kept one is cached once, and the SVD runs on the stored key and value rows. | `grad_clip/` |
 | `mla_w64_care_sigma`, `mla_w16_care_native_sigma` | CARE | CARE's covariance-aware conversion (Zhou et al., 2026), from the same measured Σ, with TransMLA's rotary path. On the grouped-query models (`w16`) the solve runs on the stored key and value heads, as CARE's released code does, then is written into the per-head layout. | `grad_clip/` |
-| `decoupled_optwide_fisher_sigma_dkr64` | Decoupled, KL objective, d_h^R = 64 | One key–value latent solved under the KL objective, with a rotary block of width 64 decoupled, cached before RoPE and read out per head. | `grad_clip_5m/` |
-| `pool` | GQA | Average the key and value maps of each group of consecutive heads, with the gauges at the identity. | `grad_clip_5m/` |
-| `gauge3B` | GQA + optimal gauge | Keep the group averages and solve each head's gauge against them. | `grad_clip_5m/` |
-| `procrustes_simk` | Procrustes alignment | Rotate each group's heads into alignment before averaging (Jin et al., 2024), with each layer's groups chosen by their combinatorial search over a similarity criterion. | `grad_clip_5m/` |
-| `procrustes` | Procrustes alignment, one KV head | The same alignment with every head in one group (6.25%), where there are no groups to choose. | `grad_clip_5m/` |
-| `optimal` | Per-group subspace | Keep GQA's consecutive groups and solve for each group's optimal key and value subspaces. | `grad_clip_5m/` |
-| `optwide` | Joint key, joint value subspace | One key subspace and one value subspace shared by every head of the layer; at one KV head it is the per-group subspace. | `grad_clip_5m/` |
+| `decoupled_optwide_fisher_sigma_dkr64` | Decoupled RoPE, KL objective, d_h^R = 64 | One key–value latent solved under the KL objective, with a rotary block of width 64 decoupled, cached before RoPE and read out per head. | `grad_clip_5m/` |
+| `pool` | Mean pool (GQA) | Average the key and value maps of each group of consecutive heads, with the gauges at the identity. | `grad_clip_5m/` |
+| `gauge3B` | Mean pool + optimal gauge | Keep the group averages and solve each head's gauge against them. | `grad_clip_5m/` |
+| `procrustes_simk` | Procrustes-aligned mean pool | Rotate each group's heads into alignment before averaging (Jin et al., 2025), with each layer's groups chosen by their combinatorial search over a similarity criterion. | `grad_clip_5m/` |
+| `procrustes` | Procrustes-aligned mean pool, one KV head | The same alignment with every head in one group (6.25%), where there are no groups to choose. | `grad_clip_5m/` |
+| `optimal` | Optimal subspace per group | Keep GQA's consecutive groups and solve for each group's optimal key and value subspaces. | `grad_clip_5m/` |
+| `optwide` | Optimal subspace per layer | One key subspace and one value subspace shared by every head of the layer; at one KV head it is the optimal subspace per group. | `grad_clip_5m/` |
 | `mha` | MHA (uncompressed) | The original model, distilled under the same recipe, as a reference (branch `mha_G0`). | `grad_clip_5m/` |
 
 The registry also names the earlier `w16` builds of the three baselines (`mla_w16_transmla_sigma`,
